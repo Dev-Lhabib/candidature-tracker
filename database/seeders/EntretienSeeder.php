@@ -2,52 +2,28 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Candidature;
+use App\Models\Entretien;
 use Illuminate\Database\Seeder;
 
 class EntretienSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $candidatureIds = \App\Models\Candidature::pluck('id')->toArray();
+        $candidatures = Candidature::pluck('id')->toArray();
+        if (empty($candidatures)) return;
+
         $entretiens = [
-            [
-                'candidature_id' => $candidatureIds[0] ?? 1,
-                'type' => 'téléphonique',
-                'date_heure' => now()->addDays(1)->setTime(10, 0),
-                'notes_preparation' => 'Préparer les questions techniques.',
-                'resultat' => 'en_attente',
-            ],
-            [
-                'candidature_id' => $candidatureIds[1] ?? 1,
-                'type' => 'présentiel',
-                'date_heure' => now()->addDays(3)->setTime(14, 0),
-                'notes_preparation' => null,
-                'resultat' => 'positif',
-            ],
-            [
-                'candidature_id' => $candidatureIds[2] ?? 1,
-                'type' => 'visio',
-                'date_heure' => now()->addDays(5)->setTime(9, 30),
-                'notes_preparation' => 'Vérifier la connexion.',
-                'resultat' => 'négatif',
-            ],
+            ['candidature_id' => $candidatures[0] ?? 1, 'type' => 'telephone',  'date_heure' => now()->addDays(1)->setTime(10, 0),  'notes_preparation' => 'Préparer les questions techniques.', 'resultat' => 'en_attente'],
+            ['candidature_id' => $candidatures[1] ?? 1, 'type' => 'presentiel', 'date_heure' => now()->addDays(3)->setTime(14, 0),  'notes_preparation' => null, 'resultat' => 'positif'],
+            ['candidature_id' => $candidatures[2] ?? 1, 'type' => 'visio',       'date_heure' => now()->addDays(5)->setTime(9, 30),  'notes_preparation' => 'Vérifier la connexion.', 'resultat' => 'negatif'],
         ];
 
         foreach ($entretiens as $data) {
-            \App\Models\Entretien::firstOrCreate(
-                [
-                    'candidature_id' => $data['candidature_id'],
-                    'type' => $data['type'],
-                    'date_heure' => $data['date_heure'],
-                ],
+            Entretien::firstOrCreate(
+                ['candidature_id' => $data['candidature_id'], 'type' => $data['type'], 'date_heure' => $data['date_heure']],
                 $data
             );
         }
-
-        // ...existing code...
     }
 }
