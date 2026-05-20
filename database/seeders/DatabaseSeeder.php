@@ -15,11 +15,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
+        // Seed a test user manually (no factories used)
+        \App\Models\User::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // Call other seeders
+        $this->call([
+            CandidatureSeeder::class,
+            EntretienSeeder::class,
         ]);
     }
 }
