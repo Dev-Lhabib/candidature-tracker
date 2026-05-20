@@ -19,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/candidatures', [CandidatureController::class, 'store'])->name('candidatures.store');
     Route::get('/candidatures/archives', [CandidatureController::class, 'archives'])->name('candidatures.archives');
     Route::put('/candidatures/{candidature}/restore', [CandidatureController::class, 'restore'])->name('candidatures.restore');
+    Route::get('/candidatures/{candidature}/download', [CandidatureController::class, 'download'])->name('candidatures.download');
     Route::get('/candidatures/{candidature}', [CandidatureController::class, 'show'])->name('candidatures.show');
     Route::get('/candidatures/{candidature}/edit', [CandidatureController::class, 'edit'])->name('candidatures.edit');
     Route::put('/candidatures/{candidature}', [CandidatureController::class, 'update'])->name('candidatures.update');
