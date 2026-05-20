@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -8,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Candidature extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -19,26 +21,33 @@ class Candidature extends Model
         'priorite',
         'notes',
         'date_candidature',
+        'fichier_path',
     ];
 
     protected $casts = [
         'date_candidature' => 'date',
     ];
 
-    // Labels français pour les statuts
-    public static array $statuts = [
-        'envoyée' => 'Envoyée',
-        'en_cours' => 'En cours',
-        'entretien' => 'Entretien planifié',
-        'offre' => 'Offre reçue',
-        'refus' => 'Refus',
-    ];
+    public static function statuts(): array
+    {
+        return [
+            'en_attente' => 'En attente',
+            'relance'    => 'Relancé',
+            'entretien'  => 'Entretien',
+            'offre'      => 'Offre reçue',
+            'refuse'     => 'Refusé',
+            'abandonne'  => 'Abandonné',
+        ];
+    }
 
-    public static array $priorites = [
-        'haute' => 'Haute',
-        'moyenne' => 'Moyenne',
-        'basse' => 'Basse',
-    ];
+    public static function priorites(): array
+    {
+        return [
+            'haute'   => 'Haute',
+            'moyenne' => 'Moyenne',
+            'basse'   => 'Basse',
+        ];
+    }
 
     public function user(): BelongsTo
     {
@@ -50,4 +59,3 @@ class Candidature extends Model
         return $this->hasMany(Entretien::class)->orderBy('date_heure');
     }
 }
-

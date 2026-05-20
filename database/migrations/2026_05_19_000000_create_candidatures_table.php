@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('candidatures', function (Blueprint $table) {
@@ -17,18 +14,16 @@ return new class extends Migration
             $table->string('entreprise');
             $table->string('poste');
             $table->string('url_offre')->nullable();
-            $table->enum('statut', ['envoyée','en_cours','entretien','offre','refus']);
+            $table->enum('statut', ['en_attente','relance','entretien','offre','refuse','abandonne'])->default('en_attente');
             $table->enum('priorite', ['haute','moyenne','basse'])->default('moyenne');
             $table->text('notes')->nullable();
             $table->date('date_candidature');
+            $table->string('fichier_path')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('candidatures');

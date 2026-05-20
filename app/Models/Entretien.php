@@ -1,11 +1,15 @@
 <?php
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Entretien extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'candidature_id',
         'type',
@@ -18,20 +22,25 @@ class Entretien extends Model
         'date_heure' => 'datetime',
     ];
 
-    public static array $types = [
-        'téléphonique' => 'Téléphonique',
-        'visio' => 'Visio',
-        'présentiel' => 'Présentiel',
-        'technique' => 'Technique',
-        'rh' => 'RH',
-    ];
+    public static function types(): array
+    {
+        return [
+            'telephone'  => 'Téléphonique',
+            'visio'      => 'Visioconférence',
+            'presentiel' => 'Présentiel',
+            'technique'  => 'Technique',
+            'rh'         => 'RH',
+        ];
+    }
 
-    public static array $resultats = [
-        'en_attente' => 'En attente',
-        'positif' => 'Positif',
-        'négatif' => 'Négatif',
-        'annulé' => 'Annulé',
-    ];
+    public static function resultats(): array
+    {
+        return [
+            'en_attente' => 'En attente',
+            'positif'    => 'Positif',
+            'negatif'    => 'Négatif',
+        ];
+    }
 
     public function candidature(): BelongsTo
     {
