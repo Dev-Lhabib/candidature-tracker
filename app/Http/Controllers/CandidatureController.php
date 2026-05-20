@@ -7,6 +7,8 @@ use App\Http\Requests\UpdateCandidatureRequest;
 use App\Models\Candidature;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class CandidatureController extends Controller
@@ -43,6 +45,12 @@ class CandidatureController extends Controller
     {
         $validated = $request->validated();
         $validated['user_id'] = auth()->id();
+
+        if ($request->hasFile('fichier')) {
+            $path = $request->file('fichier')->store("candidatures/{auth()->id()}", 'local');
+            $validated['fichier_path'] = $path;
+        }
+
         Candidature::create($validated);
 
         return redirect()->route('candidatures.index')
@@ -73,7 +81,16 @@ class CandidatureController extends Controller
     public function update(UpdateCandidatureRequest $request, Candidature $candidature): RedirectResponse
     {
         $this->authorize('update', $candidature);
-        $candidature->update($request->validated());
+        $validated = $request->validated();
+
+        if ($request->hasFile('fichier')) {
+            if ($candidature->fichier_path) {
+                Storage::disk('local')->delete($candidature->fichier_path);
+            }
+            $validated['fichier_path'] = $request->file('fichier')->store("candidatures/{auth()->id()}", 'local');
+        }
+
+        $candidature->update($validated);
 
         return redirect()->route('candidatures.show', $candidature)
             ->with('success', 'Candidature mise à jour.');
@@ -108,5 +125,16 @@ class CandidatureController extends Controller
 
         return redirect()->route('candidatures.index')
             ->with('success', 'Candidature restaurée.');
+    }
+
+    public function download(Candidature $candidature): Response
+    {
+        $this->authorize('view', $candidature);
+
+        if (!$candidature->fichier_path || !Storage::disk('local')->exists($candidature->fichier_path)) {
+            abort(404);
+        }
+
+        return Storage::disk('local')->download($candidature->fichier_path);
     }
 }

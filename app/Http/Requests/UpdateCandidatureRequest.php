@@ -21,6 +21,7 @@ class UpdateCandidatureRequest extends FormRequest
             'priorite'        => 'required|in:haute,moyenne,basse',
             'notes'            => 'nullable|string',
             'date_candidature' => 'required|date',
+            'fichier'          => 'nullable|file|mimes:pdf,doc,docx|max:5120',
         ];
     }
 }
