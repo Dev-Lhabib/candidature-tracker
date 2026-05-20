@@ -48,11 +48,6 @@ class EntretienSeeder extends Seeder
             );
         }
 
-        // Optionally, create more random entretiens
-        if (!empty($candidatureIds)) {
-            foreach (array_slice($candidatureIds, 0, 2) as $cid) {
-                \App\Models\Entretien::factory()->create(['candidature_id' => $cid]);
-            }
-        }
+        // ...existing code...
     }
 }

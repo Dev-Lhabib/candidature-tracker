@@ -12,10 +12,9 @@ class CandidatureSeeder extends Seeder
      */
     public function run(): void
     {
-        $users = \App\Models\User::pluck('id')->toArray();
         $candidatures = [
             [
-                'user_id' => $users[0] ?? 1,
+                'user_id' => 1,
                 'entreprise' => 'Acme Corp',
                 'poste' => 'Développeur PHP',
                 'url_offre' => 'https://acme.com/jobs/1',
@@ -25,7 +24,7 @@ class CandidatureSeeder extends Seeder
                 'date_candidature' => now()->subDays(10),
             ],
             [
-                'user_id' => $users[0] ?? 1,
+                'user_id' => 1,
                 'entreprise' => 'BetaTech',
                 'poste' => 'Frontend',
                 'url_offre' => 'https://betatech.com/jobs/2',
@@ -35,7 +34,7 @@ class CandidatureSeeder extends Seeder
                 'date_candidature' => now()->subDays(7),
             ],
             [
-                'user_id' => $users[1] ?? 2,
+                'user_id' => 1,
                 'entreprise' => 'Gamma Solutions',
                 'poste' => 'DevOps',
                 'url_offre' => null,
@@ -45,7 +44,7 @@ class CandidatureSeeder extends Seeder
                 'date_candidature' => now()->subDays(5),
             ],
             [
-                'user_id' => $users[1] ?? 2,
+                'user_id' => 1,
                 'entreprise' => 'Delta',
                 'poste' => 'QA',
                 'url_offre' => 'https://delta.com/jobs/4',
@@ -78,6 +77,6 @@ class CandidatureSeeder extends Seeder
         }
 
         // Optionally, create more random candidatures
-        \App\Models\Candidature::factory(3)->create();
+        //\App\Models\Candidature::factory(3)->create();
     }
 }
