@@ -3,12 +3,18 @@
 namespace Database\Seeders;
 
 use App\Models\Candidature;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class CandidatureSeeder extends Seeder
 {
     public function run(): void
     {
+        $alice = User::where('email', 'alice@example.com')->first();
+        if (!$alice) {
+            return;
+        }
+
         $candidatures = [
             ['entreprise' => 'Acme Corp',       'poste' => 'Développeur PHP', 'statut' => 'en_attente', 'priorite' => 'haute',   'date_candidature' => now()->subDays(10)],
             ['entreprise' => 'BetaTech',         'poste' => 'Frontend',         'statut' => 'relance',     'priorite' => 'moyenne', 'date_candidature' => now()->subDays(7)],
@@ -19,8 +25,8 @@ class CandidatureSeeder extends Seeder
 
         foreach ($candidatures as $data) {
             Candidature::firstOrCreate(
-                ['user_id' => 1, 'entreprise' => $data['entreprise']],
-                array_merge($data, ['user_id' => 1, 'url_offre' => null, 'notes' => null])
+                ['user_id' => $alice->id, 'entreprise' => $data['entreprise']],
+                array_merge($data, ['user_id' => $alice->id, 'url_offre' => null, 'notes' => null])
             );
         }
     }

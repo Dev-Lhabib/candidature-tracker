@@ -45,4 +45,17 @@ class CandidatureTest extends TestCase
              ])
              ->assertSessionHasErrors('statut');
     }
+
+    public function test_filters_candidatures_by_statut(): void
+    {
+        $user = User::factory()->create();
+        Candidature::factory()->for($user)->create(['statut' => 'en_attente', 'entreprise' => 'Alpha']);
+        Candidature::factory()->for($user)->create(['statut' => 'refuse', 'entreprise' => 'Beta']);
+
+        $this->actingAs($user)
+             ->get(route('candidatures.index', ['statut' => 'en_attente']))
+             ->assertOk()
+             ->assertSee('Alpha')
+             ->assertDontSee('Beta');
+    }
 }

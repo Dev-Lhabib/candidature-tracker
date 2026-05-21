@@ -15,15 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed a test user manually (no factories used)
-        \App\Models\User::create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'),
-        ]);
-
-        // Call other seeders
         $this->call([
+            UserSeeder::class,
             CandidatureSeeder::class,
             EntretienSeeder::class,
         ]);

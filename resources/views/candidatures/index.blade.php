@@ -1,6 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Mes Candidatures</h2>
+        <div>
+            <h1 class="page-title">Mes candidatures</h1>
+            <p class="page-subtitle">Suivez vos offres, filtres et priorités</p>
+        </div>
     </x-slot>
 
     <div x-data="{
@@ -23,116 +26,113 @@
                 }
             }).then(() => window.location.reload());
         }
-    }" class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8">
+    }" class="max-w-6xl mx-auto space-y-6">
 
-        <div
-            x-show="showArchive"
-            x-transition:enter="ease-out duration-300"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="ease-in duration-200"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-50"
-            style="display: none;"
-        >
-            <div x-on:click="showArchive = false" class="absolute inset-0 bg-gray-500/75"></div>
-            <div class="relative flex items-center justify-center min-h-screen">
-                <div
-                    x-show="showArchive"
-                    x-transition:enter="ease-out duration-300"
-                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave="ease-in duration-200"
-                    x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                    x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                    class="bg-white rounded-xl overflow-hidden shadow-2xl sm:w-full sm:max-w-md mx-4"
-                >
-                    <div class="bg-amber-500 px-6 py-4 flex items-center gap-3">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                        </svg>
-                        <h3 class="text-lg font-bold text-white">Archiver la candidature</h3>
+        {{-- Archive modal --}}
+        <div x-show="showArchive" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+            <div x-on:click="showArchive = false" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+            <div class="relative card w-full max-w-md overflow-hidden" @click.stop>
+                <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                        Archiver la candidature
+                    </h3>
+                </div>
+                <div class="card-body pt-5">
+                    <p class="text-slate-600 mb-4">Cette candidature sera déplacée vers les archives.</p>
+                    <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 mb-6">
+                        <p class="font-semibold text-slate-900" x-text="archiveEntrep"></p>
+                        <p class="text-sm text-slate-500" x-text="archivePoste"></p>
                     </div>
-                    <div class="p-6">
-                        <p class="text-gray-600 mb-4">Êtes-vous sûr de vouloir archiver cette candidature ?</p>
-                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                            <p class="font-semibold text-gray-900" x-text="archiveEntrep"></p>
-                            <p class="text-sm text-gray-500" x-text="archivePoste"></p>
-                        </div>
-                        <div class="flex gap-3 justify-end">
-                            <button type="button" x-on:click="showArchive = false" class="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 text-sm">Annuler</button>
-                            <button type="button" x-on:click="confirmArchive()" class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-sm">Archiver</button>
-                        </div>
+                    <div class="flex gap-3 justify-end">
+                        <button type="button" x-on:click="showArchive = false" class="btn-secondary">Annuler</button>
+                        <button type="button" x-on:click="confirmArchive()" class="btn-success">Archiver</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="flex gap-4 mb-6">
-            <a href="{{ route('candidatures.create') }}"
-               class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                + Nouvelle candidature
-            </a>
-            <a href="{{ route('candidatures.archives') }}"
-               class="px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600">
-                Archives
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <a href="{{ route('candidatures.create') }}" class="btn-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nouvelle candidature
             </a>
         </div>
 
-        <form method="GET" action="{{ route('candidatures.index') }}" class="bg-white p-4 rounded shadow mb-6 flex gap-4 items-end">
-            <div>
-                <label for="statut" class="block text-sm font-medium text-gray-700">Statut</label>
-                <select name="statut" id="statut" class="mt-1 block w-full border-gray-300 rounded-md">
-                    <option value="">Tous</option>
-                    @foreach($statuts as $key => $label)
-                        <option value="{{ $key }}" {{ request('statut') == $key ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="priorite" class="block text-sm font-medium text-gray-700">Priorité</label>
-                <select name="priorite" id="priorite" class="mt-1 block w-full border-gray-300 rounded-md">
-                    <option value="">Toutes</option>
-                    @foreach($priorites as $key => $label)
-                        <option value="{{ $key }}" {{ request('priorite') == $key ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded text-sm">Filtrer</button>
-                <a href="{{ route('candidatures.index') }}" class="ml-2 text-sm text-gray-600 underline">Réinitialiser</a>
+        <form method="GET" action="{{ route('candidatures.index') }}" class="card card-body">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label for="statut" class="form-label">Statut</label>
+                    <select name="statut" id="statut" class="form-select">
+                        <option value="">Tous les statuts</option>
+                        @foreach($statuts as $key => $label)
+                            <option value="{{ $key }}" {{ request('statut') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="priorite" class="form-label">Priorité</label>
+                    <select name="priorite" id="priorite" class="form-select">
+                        <option value="">Toutes les priorités</option>
+                        @foreach($priorites as $key => $label)
+                            <option value="{{ $key }}" {{ request('priorite') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="btn-primary flex-1">Filtrer</button>
+                    <a href="{{ route('candidatures.index') }}" class="btn-ghost">Réinitialiser</a>
+                </div>
             </div>
         </form>
 
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 text-gray-900">
-                @forelse($candidatures as $c)
-                    <div class="border-b border-gray-200 py-4 flex justify-between items-start gap-4">
-                        <div>
-                            <h3 class="font-bold text-lg">{{ $c->entreprise }}</h3>
-                            <p class="text-gray-600">{{ $c->poste }}</p>
-                            <div class="flex gap-2 mt-1">
-                                <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800">{{ $statuts[$c->statut] }}</span>
-                                <span class="px-2 py-0.5 text-xs rounded-full
-                                    @if($c->priorite === 'haute') bg-red-100 text-red-800
-                                    @elseif($c->priorite === 'moyenne') bg-yellow-100 text-yellow-800
-                                    @else bg-green-100 text-green-800 @endif">
-                                    {{ $priorites[$c->priorite] }}
-                                </span>
+        <div class="grid gap-4 md:grid-cols-2">
+            @forelse($candidatures as $c)
+                <article class="card group hover:shadow-card-hover transition-shadow duration-300">
+                    <div class="card-body">
+                        <div class="flex justify-between items-start gap-3">
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-lg font-bold text-slate-900 truncate group-hover:text-brand-700 transition-colors">
+                                    <a href="{{ route('candidatures.show', $c) }}">{{ $c->entreprise }}</a>
+                                </h3>
+                                <p class="text-slate-600 font-medium">{{ $c->poste }}</p>
                             </div>
-                            <p class="text-sm text-gray-500 mt-1">Candidaturé le {{ $c->date_candidature->format('d/m/Y') }}</p>
+                            @if($c->entretiens->count() > 0)
+                                <span class="shrink-0 badge bg-brand-50 text-brand-700 ring-brand-200/60">
+                                    {{ $c->entretiens->count() }} entretien{{ $c->entretiens->count() > 1 ? 's' : '' }}
+                                </span>
+                            @endif
                         </div>
-                        <div class="flex gap-2 items-start">
-                            <a href="{{ route('candidatures.show', $c) }}" class="text-indigo-600 hover:underline text-sm">Voir</a>
-                            <a href="{{ route('candidatures.edit', $c) }}" class="text-gray-600 hover:underline text-sm">Modifier</a>
-                            <button type="button" x-on:click="openArchive('{{ addslashes($c->entreprise) }}', '{{ addslashes($c->poste) }}', '{{ route('candidatures.destroy', $c) }}')" class="text-red-600 hover:underline text-sm">Archiver</button>
+
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <x-status-badge :variant="$c->statut" :label="$statuts[$c->statut]" />
+                            <x-status-badge :variant="$c->priorite" :label="$priorites[$c->priorite]" />
+                        </div>
+
+                        <p class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Candidature du {{ $c->date_candidature->format('d/m/Y') }}
+                        </p>
+
+                        <div class="flex flex-wrap gap-2 mt-5 pt-5 border-t border-slate-100">
+                            <a href="{{ route('candidatures.show', $c) }}" class="btn-primary text-xs py-2">Voir le détail</a>
+                            <a href="{{ route('candidatures.edit', $c) }}" class="btn-secondary text-xs py-2">Modifier</a>
+                            <button type="button" x-on:click="openArchive(@js($c->entreprise), @js($c->poste), @js(route('candidatures.destroy', $c)))" class="btn-ghost text-xs py-2 text-red-600 hover:text-red-700 hover:bg-red-50">Archiver</button>
                         </div>
                     </div>
-                @empty
-                    <p class="text-gray-500 text-center py-8">Aucune candidature pour le moment. <a href="{{ route('candidatures.create') }}" class="text-indigo-600 underline">Créer la première</a></p>
-                @endforelse
-            </div>
+                </article>
+            @empty
+                <div class="card col-span-full">
+                    <div class="card-body text-center py-16">
+                        <div class="w-16 h-16 mx-auto rounded-2xl bg-brand-50 flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </div>
+                        <p class="text-slate-600 font-medium">Aucune candidature pour le moment</p>
+                        <p class="text-sm text-slate-500 mt-1 mb-6">Commencez par ajouter votre première opportunité</p>
+                        <a href="{{ route('candidatures.create') }}" class="btn-primary">Créer une candidature</a>
+                    </div>
+                </div>
+            @endforelse
         </div>
     </div>
 </x-app-layout>

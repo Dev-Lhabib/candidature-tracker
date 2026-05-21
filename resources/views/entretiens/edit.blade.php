@@ -1,17 +1,25 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Modifier Entretien</h2>
+        <div>
+            <h1 class="page-title">Modifier l'entretien</h1>
+            <p class="page-subtitle">{{ $entretien->candidature->entreprise }}</p>
+        </div>
     </x-slot>
 
-    <div class="py-6 max-w-3xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white shadow-sm sm:rounded-lg p-6">
-            <form method="POST" action="{{ route('entretiens.update', $entretien) }}">
+    <div class="max-w-2xl mx-auto">
+        <a href="{{ route('candidatures.show', $entretien->candidature) }}" class="btn-ghost text-sm mb-6 inline-flex">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Retour au détail
+        </a>
+
+        <div class="card">
+            <form method="POST" action="{{ route('entretiens.update', $entretien) }}" class="card-body space-y-6">
                 @csrf @method('PUT')
 
-                <div class="grid grid-cols-1 gap-6">
+                <div class="space-y-5">
                     <div>
                         <x-input-label for="type" value="Type *" />
-                        <select id="type" name="type" class="mt-1 block w-full border-gray-300 rounded-md" required>
+                        <select id="type" name="type" class="form-select" required>
                             @foreach(App\Models\Entretien::types() as $key => $label)
                                 <option value="{{ $key }}" {{ old('type', $entretien->type) == $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
@@ -20,12 +28,12 @@
                     </div>
                     <div>
                         <x-input-label for="date_heure" value="Date et heure *" />
-                        <x-text-input id="date_heure" name="date_heure" type="datetime-local" value="{{ old('date_heure', $entretien->date_heure->format('Y-m-d\TH:i')) }}" class="mt-1 block w-full" required />
+                        <x-text-input id="date_heure" name="date_heure" type="datetime-local" value="{{ old('date_heure', $entretien->date_heure->format('Y-m-d\TH:i')) }}" required />
                         <x-input-error :messages="$errors->get('date_heure')" class="mt-2" />
                     </div>
                     <div>
                         <x-input-label for="resultat" value="Résultat *" />
-                        <select id="resultat" name="resultat" class="mt-1 block w-full border-gray-300 rounded-md" required>
+                        <select id="resultat" name="resultat" class="form-select" required>
                             @foreach(App\Models\Entretien::resultats() as $key => $label)
                                 <option value="{{ $key }}" {{ old('resultat', $entretien->resultat) == $key ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
@@ -34,14 +42,14 @@
                     </div>
                     <div>
                         <x-input-label for="notes_preparation" value="Notes de préparation" />
-                        <textarea id="notes_preparation" name="notes_preparation" rows="4" class="mt-1 block w-full border-gray-300 rounded-md">{{ old('notes_preparation', $entretien->notes_preparation) }}</textarea>
+                        <textarea id="notes_preparation" name="notes_preparation" rows="4" class="form-textarea">{{ old('notes_preparation', $entretien->notes_preparation) }}</textarea>
                         <x-input-error :messages="$errors->get('notes_preparation')" class="mt-2" />
                     </div>
                 </div>
 
-                <div class="flex gap-3 mt-6">
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">Enregistrer</button>
-                    <a href="{{ route('candidatures.show', $entretien->candidature) }}" class="px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400">Annuler</a>
+                <div class="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
+                    <x-primary-button>Enregistrer</x-primary-button>
+                    <a href="{{ route('candidatures.show', $entretien->candidature) }}" class="btn-secondary">Annuler</a>
                 </div>
             </form>
         </div>

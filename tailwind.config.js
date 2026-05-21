@@ -12,7 +12,33 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                brand: {
+                    50: '#f5f3ff',
+                    100: '#ede9fe',
+                    200: '#ddd6fe',
+                    300: '#c4b5fd',
+                    400: '#a78bfa',
+                    500: '#8b5cf6',
+                    600: '#7c3aed',
+                    700: '#6d28d9',
+                    800: '#5b21b6',
+                    900: '#4c1d95',
+                    950: '#2e1065',
+                },
+                surface: {
+                    DEFAULT: '#f8fafc',
+                    card: '#ffffff',
+                    sidebar: '#0f172a',
+                    'sidebar-hover': '#1e293b',
+                },
+            },
+            boxShadow: {
+                card: '0 1px 3px 0 rgb(0 0 0 / 0.04), 0 4px 12px -2px rgb(0 0 0 / 0.06)',
+                'card-hover': '0 8px 24px -4px rgb(0 0 0 / 0.08), 0 4px 12px -2px rgb(0 0 0 / 0.04)',
+                sidebar: '4px 0 24px -4px rgb(0 0 0 / 0.15)',
             },
         },
     },

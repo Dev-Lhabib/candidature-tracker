@@ -1,33 +1,36 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Nouvelle Candidature</h2>
+        <div>
+            <h1 class="page-title">Nouvelle candidature</h1>
+            <p class="page-subtitle">Ajoutez une offre à votre suivi</p>
+        </div>
     </x-slot>
 
-    <div class="py-6 max-w-3xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white shadow-sm sm:rounded-lg p-6">
-            <form method="POST" action="{{ route('candidatures.store') }}" enctype="multipart/form-data">
+    <div class="max-w-2xl mx-auto">
+        <div class="card">
+            <form method="POST" action="{{ route('candidatures.store') }}" enctype="multipart/form-data" class="card-body space-y-6">
                 @csrf
 
-                <div class="grid grid-cols-1 gap-6">
+                <div class="space-y-5">
                     <div>
                         <x-input-label for="entreprise" value="Entreprise *" />
-                        <x-text-input id="entreprise" name="entreprise" type="text" value="{{ old('entreprise') }}" class="mt-1 block w-full" required />
+                        <x-text-input id="entreprise" name="entreprise" type="text" value="{{ old('entreprise') }}" required />
                         <x-input-error :messages="$errors->get('entreprise')" class="mt-2" />
                     </div>
                     <div>
                         <x-input-label for="poste" value="Poste *" />
-                        <x-text-input id="poste" name="poste" type="text" value="{{ old('poste') }}" class="mt-1 block w-full" required />
+                        <x-text-input id="poste" name="poste" type="text" value="{{ old('poste') }}" required />
                         <x-input-error :messages="$errors->get('poste')" class="mt-2" />
                     </div>
                     <div>
                         <x-input-label for="url_offre" value="URL de l'offre" />
-                        <x-text-input id="url_offre" name="url_offre" type="url" value="{{ old('url_offre') }}" class="mt-1 block w-full" />
+                        <x-text-input id="url_offre" name="url_offre" type="url" value="{{ old('url_offre') }}" placeholder="https://" />
                         <x-input-error :messages="$errors->get('url_offre')" class="mt-2" />
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <x-input-label for="statut" value="Statut *" />
-                            <select id="statut" name="statut" class="mt-1 block w-full border-gray-300 rounded-md" required>
+                            <select id="statut" name="statut" class="form-select mt-0" required>
                                 @foreach($statuts as $key => $label)
                                     <option value="{{ $key }}" {{ old('statut') == $key ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
@@ -36,7 +39,7 @@
                         </div>
                         <div>
                             <x-input-label for="priorite" value="Priorité *" />
-                            <select id="priorite" name="priorite" class="mt-1 block w-full border-gray-300 rounded-md" required>
+                            <select id="priorite" name="priorite" class="form-select mt-0" required>
                                 @foreach($priorites as $key => $label)
                                     <option value="{{ $key }}" {{ old('priorite') == $key ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
@@ -46,24 +49,25 @@
                     </div>
                     <div>
                         <x-input-label for="date_candidature" value="Date de candidature *" />
-                        <x-text-input id="date_candidature" name="date_candidature" type="date" value="{{ old('date_candidature') }}" class="mt-1 block w-full" required />
+                        <x-text-input id="date_candidature" name="date_candidature" type="date" value="{{ old('date_candidature') }}" required />
                         <x-input-error :messages="$errors->get('date_candidature')" class="mt-2" />
                     </div>
                     <div>
                         <x-input-label for="notes" value="Notes" />
-                        <textarea id="notes" name="notes" rows="4" class="mt-1 block w-full border-gray-300 rounded-md">{{ old('notes') }}</textarea>
+                        <textarea id="notes" name="notes" rows="4" class="form-textarea">{{ old('notes') }}</textarea>
                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                     </div>
                     <div>
-                        <x-input-label for="fichier" value="Fichier (PDF, DOC, DOCX — max 5 Mo)" />
-                        <input id="fichier" name="fichier" type="file" accept=".pdf,.doc,.docx" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+                        <x-input-label for="fichier" value="Pièce jointe (PDF, DOC, DOCX — max 5 Mo)" />
+                        <input id="fichier" name="fichier" type="file" accept=".pdf,.doc,.docx"
+                            class="mt-1 block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
                         <x-input-error :messages="$errors->get('fichier')" class="mt-2" />
                     </div>
                 </div>
 
-                <div class="flex gap-3 mt-6">
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">Créer</button>
-                    <a href="{{ route('candidatures.index') }}" class="px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-400">Annuler</a>
+                <div class="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
+                    <x-primary-button>Créer la candidature</x-primary-button>
+                    <a href="{{ route('candidatures.index') }}" class="btn-secondary">Annuler</a>
                 </div>
             </form>
         </div>

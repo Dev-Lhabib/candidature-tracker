@@ -7,9 +7,9 @@ use App\Http\Requests\UpdateCandidatureRequest;
 use App\Models\Candidature;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CandidatureController extends Controller
 {
@@ -44,16 +44,17 @@ class CandidatureController extends Controller
     public function store(StoreCandidatureRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        unset($validated['fichier']);
         $validated['user_id'] = auth()->id();
 
         if ($request->hasFile('fichier')) {
-            $path = $request->file('fichier')->store("candidatures/{auth()->id()}", 'local');
-            $validated['fichier_path'] = $path;
+            $validated['fichier_path'] = $request->file('fichier')
+                ->store('candidatures/'.auth()->id(), 'local');
         }
 
-        Candidature::create($validated);
+        $candidature = Candidature::create($validated);
 
-        return redirect()->route('candidatures.index')
+        return redirect()->route('candidatures.show', $candidature)
             ->with('success', 'Candidature créée avec succès.');
     }
 
@@ -82,12 +83,14 @@ class CandidatureController extends Controller
     {
         $this->authorize('update', $candidature);
         $validated = $request->validated();
+        unset($validated['fichier']);
 
         if ($request->hasFile('fichier')) {
             if ($candidature->fichier_path) {
                 Storage::disk('local')->delete($candidature->fichier_path);
             }
-            $validated['fichier_path'] = $request->file('fichier')->store("candidatures/{auth()->id()}", 'local');
+            $validated['fichier_path'] = $request->file('fichier')
+                ->store('candidatures/'.auth()->id(), 'local');
         }
 
         $candidature->update($validated);
@@ -150,7 +153,7 @@ class CandidatureController extends Controller
             ->with('success', 'Candidature supprimée définitivement.');
     }
 
-    public function download(Candidature $candidature): Response
+    public function download(Candidature $candidature): StreamedResponse
     {
         $this->authorize('view', $candidature);
 
