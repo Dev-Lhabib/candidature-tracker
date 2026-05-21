@@ -3,10 +3,116 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ $candidature->entreprise }} — {{ $candidature->poste }}</h2>
     </x-slot>
 
-    <div class="py-6 max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div x-data="{
+        showArchive: false,
+        showDelete: false,
+        archiveUrl: '',
+        deleteUrl: '',
+        entretienLabel: '',
+        openArchive(url) {
+            this.showArchive = true;
+            this.archiveUrl = url;
+        },
+        openDelete(url, label) {
+            this.showDelete = true;
+            this.deleteUrl = url;
+            this.entretienLabel = label;
+        },
+        confirmArchive() {
+            fetch(this.archiveUrl, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token').content,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(() => window.location.reload());
+        },
+        confirmDelete() {
+            fetch(this.deleteUrl, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token').content,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(() => window.location.reload());
+        }
+    }" class="py-6 max-w-4xl mx-auto sm:px-6 lg:px-8">
         @if(session('success'))
             <div class="mb-4 px-4 py-3 bg-green-100 border border-green-400 text-green-700 rounded">{{ session('success') }}</div>
         @endif
+
+        <div
+            x-show="showArchive || showDelete"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 z-50"
+            style="display: none;"
+        >
+            <div x-on:click="showArchive = false; showDelete = false" class="absolute inset-0 bg-gray-500/75"></div>
+            <div class="relative flex items-center justify-center min-h-screen">
+                <template x-if="showArchive">
+                    <div
+                        x-transition:enter="ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        class="bg-white rounded-xl overflow-hidden shadow-2xl sm:w-full sm:max-w-md mx-4"
+                    >
+                        <div class="bg-amber-500 px-6 py-4 flex items-center gap-3">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                            </svg>
+                            <h3 class="text-lg font-bold text-white">Archiver la candidature</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-600 mb-4">Êtes-vous sûr de vouloir archiver cette candidature ?</p>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                                <p class="font-semibold text-gray-900">{{ $candidature->entreprise }}</p>
+                                <p class="text-sm text-gray-500">{{ $candidature->poste }}</p>
+                            </div>
+                            <div class="flex gap-3 justify-end">
+                                <button type="button" x-on:click="showArchive = false" class="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 text-sm">Annuler</button>
+                                <button type="button" x-on:click="confirmArchive()" class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-sm">Archiver</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template x-if="showDelete">
+                    <div
+                        x-transition:enter="ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave="ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        class="bg-white rounded-xl overflow-hidden shadow-2xl sm:w-full sm:max-w-md mx-4"
+                    >
+                        <div class="bg-red-600 px-6 py-4 flex items-center gap-3">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <h3 class="text-lg font-bold text-white">Supprimer l'entretien</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-600 mb-4">Êtes-vous sûr de vouloir supprimer cet entretien ?</p>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                                <p class="font-semibold text-gray-900" x-text="entretienLabel"></p>
+                            </div>
+                            <div class="flex gap-3 justify-end">
+                                <button type="button" x-on:click="showDelete = false" class="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 text-sm">Annuler</button>
+                                <button type="button" x-on:click="confirmDelete()" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 text-sm">Supprimer</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
 
         <div class="bg-white shadow-sm sm:rounded-lg p-6 mb-6">
             <div class="flex justify-between items-start mb-4">
@@ -16,10 +122,7 @@
                 </div>
                 <div class="flex gap-2">
                     <a href="{{ route('candidatures.edit', $candidature) }}" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Modifier</a>
-                    <form method="POST" action="{{ route('candidatures.destroy', $candidature) }}">
-                        @csrf @method('DELETE')
-                        <button type="submit" onclick="return confirm('Archiver cette candidature ?')" class="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700">Archiver</button>
-                    </form>
+                    <button type="button" x-on:click="openArchive('{{ route('candidatures.destroy', $candidature) }}')" class="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700">Archiver</button>
                 </div>
             </div>
 
@@ -91,10 +194,7 @@
                         </div>
                         <div class="flex gap-2">
                             <a href="{{ route('entretiens.edit', $e) }}" class="text-sm text-gray-600 hover:underline">Modifier</a>
-                            <form method="POST" action="{{ route('entretiens.destroy', $e) }}">
-                                @csrf @method('DELETE')
-                                <button type="submit" onclick="return confirm('Supprimer cet entretien ?')" class="text-red-600 hover:underline text-sm">Supprimer</button>
-                            </form>
+                            <button type="button" x-on:click="openDelete('{{ route('entretiens.destroy', $e) }}', '{{ App\Models\Entretien::types()[$e->type] . ' - ' . $e->date_heure->format('d/m/Y à H:i') }}')" class="text-red-600 hover:underline text-sm">Supprimer</button>
                         </div>
                     </div>
                 </div>

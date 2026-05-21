@@ -9,7 +9,7 @@ use App\Http\Controllers\EntretienController;
 Route::redirect('/', '/candidatures');
 Route::redirect('/dashboard', '/candidatures')->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {  
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -18,7 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/candidatures/create', [CandidatureController::class, 'create'])->name('candidatures.create');
     Route::post('/candidatures', [CandidatureController::class, 'store'])->name('candidatures.store');
     Route::get('/candidatures/archives', [CandidatureController::class, 'archives'])->name('candidatures.archives');
-    Route::put('/candidatures/{candidature}/restore', [CandidatureController::class, 'restore'])->name('candidatures.restore');
+    Route::put('/candidatures/{id}/restore', [CandidatureController::class, 'restore'])->name('candidatures.restore');
+    Route::delete('/candidatures/{id}/force', [CandidatureController::class, 'forceDelete'])->name('candidatures.forceDelete');
     Route::get('/candidatures/{candidature}/download', [CandidatureController::class, 'download'])->name('candidatures.download');
     Route::get('/candidatures/{candidature}', [CandidatureController::class, 'show'])->name('candidatures.show');
     Route::get('/candidatures/{candidature}/edit', [CandidatureController::class, 'edit'])->name('candidatures.edit');

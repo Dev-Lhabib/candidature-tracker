@@ -117,14 +117,37 @@ class CandidatureController extends Controller
         ]);
     }
 
-    public function restore(int $id): RedirectResponse
+    public function restore(int $id)
     {
-        $candidature = Candidature::withTrashed()->findOrFail($id);
+        $candidature = Candidature::withTrashed()->where('id', $id)->firstOrFail();
         $this->authorize('restore', $candidature);
         $candidature->restore();
 
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return redirect()->route('candidatures.index')
             ->with('success', 'Candidature restaurée.');
+    }
+
+    public function forceDelete(int $id)
+    {
+        $candidature = Candidature::withTrashed()->where('id', $id)->firstOrFail();
+        $this->authorize('delete', $candidature);
+
+        if ($candidature->fichier_path) {
+            Storage::disk('local')->delete($candidature->fichier_path);
+        }
+
+        $candidature->forceDelete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('candidatures.archives')
+            ->with('success', 'Candidature supprimée définitivement.');
     }
 
     public function download(Candidature $candidature): Response
