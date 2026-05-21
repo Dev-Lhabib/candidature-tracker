@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CandidatureController;
+use App\Http\Controllers\CandidatureFichierController;
 use App\Http\Controllers\EntretienController;
 
 Route::redirect('/', '/candidatures');
@@ -20,7 +21,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/candidatures/archives', [CandidatureController::class, 'archives'])->name('candidatures.archives');
     Route::put('/candidatures/{id}/restore', [CandidatureController::class, 'restore'])->name('candidatures.restore');
     Route::delete('/candidatures/{id}/force', [CandidatureController::class, 'forceDelete'])->name('candidatures.forceDelete');
-    Route::get('/candidatures/{candidature}/download', [CandidatureController::class, 'download'])->name('candidatures.download');
+    Route::get('/candidatures/{candidature}/fichiers/{fichier}/download', [CandidatureFichierController::class, 'download'])->name('candidatures.fichiers.download');
+    Route::delete('/candidatures/{candidature}/fichiers/{fichier}', [CandidatureFichierController::class, 'destroy'])->name('candidatures.fichiers.destroy');
     Route::get('/candidatures/{candidature}', [CandidatureController::class, 'show'])->name('candidatures.show');
     Route::get('/candidatures/{candidature}/edit', [CandidatureController::class, 'edit'])->name('candidatures.edit');
     Route::put('/candidatures/{candidature}', [CandidatureController::class, 'update'])->name('candidatures.update');

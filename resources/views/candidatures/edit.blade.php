@@ -57,18 +57,28 @@
                         <textarea id="notes" name="notes" rows="4" class="form-textarea">{{ old('notes', $candidature->notes) }}</textarea>
                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                     </div>
+                    @if($candidature->fichiers->isNotEmpty())
                     <div>
-                        <x-input-label for="fichier" value="Pièce jointe (PDF, DOC, DOCX — max 5 Mo)" />
-                        @if($candidature->fichier_path)
-                            <a href="{{ route('candidatures.download', $candidature) }}" class="inline-flex items-center gap-1 text-sm text-brand-600 hover:text-brand-700 font-medium mb-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                Télécharger le fichier actuel
-                            </a>
-                        @endif
-                        <input id="fichier" name="fichier" type="file" accept=".pdf,.doc,.docx"
-                            class="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
-                        <x-input-error :messages="$errors->get('fichier')" class="mt-2" />
+                        <p class="form-label">Fichiers existants</p>
+                        <ul class="space-y-2 mb-4">
+                            @foreach($candidature->fichiers as $f)
+                                <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+                                    <a href="{{ route('candidatures.fichiers.download', [$candidature, $f]) }}" class="text-brand-600 hover:text-brand-700 font-medium truncate">{{ $f->nom_original }}</a>
+                                    <button
+                                        type="submit"
+                                        form="delete-fichier-{{ $f->id }}"
+                                        class="text-red-600 hover:text-red-700 text-xs font-semibold"
+                                        onclick="return confirm('Supprimer ce fichier ?');"
+                                    >Supprimer</button>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
+                    @endif
+                    <x-fichiers-input
+                        label="Ajouter des fichiers (PDF, DOC, DOCX — max 5 Mo chacun)"
+                        hint="Les nouveaux fichiers s'ajoutent aux fichiers déjà enregistrés. Choisissez plusieurs fichiers, puis cliquez une seule fois sur Enregistrer."
+                    />
                 </div>
 
                 <div class="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
@@ -76,6 +86,17 @@
                     <a href="{{ route('candidatures.show', $candidature) }}" class="btn-secondary">Annuler</a>
                 </div>
             </form>
+
+            @foreach($candidature->fichiers as $f)
+                <form
+                    id="delete-fichier-{{ $f->id }}"
+                    method="POST"
+                    action="{{ route('candidatures.fichiers.destroy', [$candidature, $f]) }}"
+                    class="hidden"
+                >
+                    @csrf @method('DELETE')
+                </form>
+            @endforeach
         </div>
     </div>
 </x-app-layout>

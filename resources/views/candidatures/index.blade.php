@@ -97,11 +97,19 @@
                                 </h3>
                                 <p class="text-slate-600 font-medium">{{ $c->poste }}</p>
                             </div>
-                            @if($c->entretiens->count() > 0)
-                                <span class="shrink-0 badge bg-brand-50 text-brand-700 ring-brand-200/60">
-                                    {{ $c->entretiens->count() }} entretien{{ $c->entretiens->count() > 1 ? 's' : '' }}
-                                </span>
-                            @endif
+                            <div class="flex shrink-0 flex-col items-end gap-1">
+                                @if($c->fichiers->count() > 0)
+                                    <span class="badge bg-slate-100 text-slate-600 ring-slate-200/60" title="Pièces jointes">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                                        {{ $c->fichiers->count() }} PJ
+                                    </span>
+                                @endif
+                                @if($c->entretiens->count() > 0)
+                                    <span class="badge bg-brand-50 text-brand-700 ring-brand-200/60">
+                                        {{ $c->entretiens->count() }} entretien{{ $c->entretiens->count() > 1 ? 's' : '' }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="flex flex-wrap gap-2 mt-4">

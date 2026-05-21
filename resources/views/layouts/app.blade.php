@@ -69,6 +69,11 @@
                         <x-flash-alert type="success" :message="session('success')" />
                     </div>
                 @endif
+                @if(session('warning'))
+                    <div class="mx-4 sm:mx-6 lg:mx-8 mt-4">
+                        <x-flash-alert type="error" :message="session('warning')" />
+                    </div>
+                @endif
 
                 <main class="flex-1 p-4 sm:p-6 lg:p-8">
                     {{ $slot }}

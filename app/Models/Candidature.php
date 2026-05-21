@@ -21,7 +21,6 @@ class Candidature extends Model
         'priorite',
         'notes',
         'date_candidature',
-        'fichier_path',
     ];
 
     protected $casts = [
@@ -57,5 +56,10 @@ class Candidature extends Model
     public function entretiens(): HasMany
     {
         return $this->hasMany(Entretien::class)->orderBy('date_heure');
+    }
+
+    public function fichiers(): HasMany
+    {
+        return $this->hasMany(CandidatureFichier::class)->orderBy('created_at');
     }
 }

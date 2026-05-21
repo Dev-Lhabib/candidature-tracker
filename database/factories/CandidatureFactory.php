@@ -21,7 +21,6 @@ class CandidatureFactory extends Factory
             'priorite'         => fake()->randomElement(['haute', 'moyenne', 'basse']),
             'notes'            => fake()->optional()->paragraph(),
             'date_candidature' => fake()->date(),
-            'fichier_path'     => null,
         ];
     }
 }

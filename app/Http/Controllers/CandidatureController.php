@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\StoresCandidatureFichiers;
 use App\Http\Requests\StoreCandidatureRequest;
 use App\Http\Requests\UpdateCandidatureRequest;
 use App\Models\Candidature;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CandidatureController extends Controller
 {
+    use StoresCandidatureFichiers;
+
     public function index(Request $request): View
     {
-        $query = auth()->user()->candidatures()->with('entretiens');
+        $query = auth()->user()->candidatures()->with(['entretiens', 'fichiers']);
 
         if ($request->filled('statut')) {
             $query->where('statut', $request->statut);
@@ -44,24 +45,25 @@ class CandidatureController extends Controller
     public function store(StoreCandidatureRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        unset($validated['fichier']);
+        unset($validated['fichiers']);
         $validated['user_id'] = auth()->id();
-
-        if ($request->hasFile('fichier')) {
-            $validated['fichier_path'] = $request->file('fichier')
-                ->store('candidatures/'.auth()->id(), 'local');
-        }
 
         $candidature = Candidature::create($validated);
 
-        return redirect()->route('candidatures.show', $candidature)
-            ->with('success', 'Candidature créée avec succès.');
+        $flash = ['success' => 'Candidature créée avec succès.'];
+
+        if ($request->hasFile('fichiers')) {
+            $result = $this->storeFichiers($candidature, $request->file('fichiers'));
+            $flash = $this->fichierUploadFlash($result, 'Candidature créée avec succès.');
+        }
+
+        return redirect()->route('candidatures.show', $candidature)->with($flash);
     }
 
     public function show(Candidature $candidature): View
     {
         $this->authorize('view', $candidature);
-        $candidature->load('entretiens');
+        $candidature->load(['entretiens', 'fichiers']);
 
         return view('candidatures.show', [
             'candidature' => $candidature,
@@ -71,6 +73,7 @@ class CandidatureController extends Controller
     public function edit(Candidature $candidature): View
     {
         $this->authorize('update', $candidature);
+        $candidature->load('fichiers');
 
         return view('candidatures.edit', [
             'candidature' => $candidature,
@@ -83,20 +86,18 @@ class CandidatureController extends Controller
     {
         $this->authorize('update', $candidature);
         $validated = $request->validated();
-        unset($validated['fichier']);
-
-        if ($request->hasFile('fichier')) {
-            if ($candidature->fichier_path) {
-                Storage::disk('local')->delete($candidature->fichier_path);
-            }
-            $validated['fichier_path'] = $request->file('fichier')
-                ->store('candidatures/'.auth()->id(), 'local');
-        }
+        unset($validated['fichiers']);
 
         $candidature->update($validated);
 
-        return redirect()->route('candidatures.show', $candidature)
-            ->with('success', 'Candidature mise à jour.');
+        $flash = ['success' => 'Candidature mise à jour.'];
+
+        if ($request->hasFile('fichiers')) {
+            $result = $this->storeFichiers($candidature, $request->file('fichiers'));
+            $flash = $this->fichierUploadFlash($result, 'Candidature mise à jour.');
+        }
+
+        return redirect()->route('candidatures.show', $candidature)->with($flash);
     }
 
     public function destroy(Candidature $candidature): RedirectResponse
@@ -139,8 +140,9 @@ class CandidatureController extends Controller
         $candidature = Candidature::withTrashed()->where('id', $id)->firstOrFail();
         $this->authorize('delete', $candidature);
 
-        if ($candidature->fichier_path) {
-            Storage::disk('local')->delete($candidature->fichier_path);
+        $candidature->load('fichiers');
+        foreach ($candidature->fichiers as $fichier) {
+            $fichier->delete();
         }
 
         $candidature->forceDelete();
@@ -151,16 +153,5 @@ class CandidatureController extends Controller
 
         return redirect()->route('candidatures.archives')
             ->with('success', 'Candidature supprimée définitivement.');
-    }
-
-    public function download(Candidature $candidature): StreamedResponse
-    {
-        $this->authorize('view', $candidature);
-
-        if (!$candidature->fichier_path || !Storage::disk('local')->exists($candidature->fichier_path)) {
-            abort(404);
-        }
-
-        return Storage::disk('local')->download($candidature->fichier_path);
     }
 }

@@ -93,13 +93,23 @@
                     @endif
                 </dl>
 
-                @if($candidature->fichier_path)
+                @if($candidature->fichiers->isNotEmpty())
                 <div class="mt-6 pt-6 border-t border-slate-100">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Pièce jointe</p>
-                    <a href="{{ route('candidatures.download', $candidature) }}" class="btn-secondary text-sm inline-flex">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        Télécharger
-                    </a>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Pièces jointes ({{ $candidature->fichiers->count() }})</p>
+                    <ul class="space-y-2">
+                        @foreach($candidature->fichiers as $f)
+                            <li class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
+                                <span class="text-sm font-medium text-slate-800 truncate">{{ $f->nom_original }}</span>
+                                <div class="flex gap-2 shrink-0">
+                                    <a href="{{ route('candidatures.fichiers.download', [$candidature, $f]) }}" class="btn-secondary text-xs py-1.5">Télécharger</a>
+                                    <form method="POST" action="{{ route('candidatures.fichiers.destroy', [$candidature, $f]) }}" class="inline" onsubmit="return confirm('Supprimer ce fichier ?');">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn-ghost text-xs py-1.5 text-red-600">Supprimer</button>
+                                    </form>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
                 @endif
 

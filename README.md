@@ -33,7 +33,7 @@ Chaque utilisateur authentifié gère **ses propres candidatures** :
 - **Entretiens** rattachés à une candidature
 - **Archivage** sans suppression définitive (`SoftDeletes`)
 - **Policy** : impossible d'accéder aux données d'un autre utilisateur (403)
-- **Bonus** : upload / téléchargement de CV ou lettre (PDF, DOC, DOCX)
+- **Bonus** : plusieurs pièces jointes par candidature (PDF, DOC, DOCX)
 
 | URL | Rôle |
 |-----|------|
@@ -57,7 +57,7 @@ Chaque utilisateur authentifié gère **ses propres candidatures** :
 | US9 | Filtrer par statut et priorité | ✅ |
 | US10 | Ajouter un entretien | ✅ |
 | US11 | Modifier / supprimer un entretien | ✅ |
-| Bonus | Upload et téléchargement de pièce jointe (PDF, DOC, DOCX) | ✅ |
+| Bonus | Upload multiple, téléchargement et suppression de pièces jointes | ✅ |
 
 ---
 
@@ -259,7 +259,7 @@ Documentation textuelle et schéma Mermaid de secours : **[docs/MCD-MLD.md](docs
 | Propriété des données | `user_id` = `auth()->id()` à la création (jamais depuis le formulaire) |
 | Archives | `$candidature->delete()` + `onlyTrashed()` / `restore()` |
 | Performance | `with('entretiens')` sur les listes et détails (éviter N+1) |
-| Fichiers | `Storage::disk('local')` — route `candidatures.download` |
+| Fichiers | Table `candidature_fichiers` — `Storage::disk('local')`, routes `candidatures.fichiers.*` |
 
 ---
 

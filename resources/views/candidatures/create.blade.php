@@ -57,12 +57,10 @@
                         <textarea id="notes" name="notes" rows="4" class="form-textarea">{{ old('notes') }}</textarea>
                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                     </div>
-                    <div>
-                        <x-input-label for="fichier" value="Pièce jointe (PDF, DOC, DOCX — max 5 Mo)" />
-                        <input id="fichier" name="fichier" type="file" accept=".pdf,.doc,.docx"
-                            class="mt-1 block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
-                        <x-input-error :messages="$errors->get('fichier')" class="mt-2" />
-                    </div>
+                    <x-fichiers-input
+                        label="Pièces jointes (PDF, DOC, DOCX — max 5 Mo chacun, 10 fichiers max)"
+                        class="mt-1"
+                    />
                 </div>
 
                 <div class="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
