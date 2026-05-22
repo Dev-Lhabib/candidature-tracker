@@ -3,10 +3,28 @@
 namespace App\Http\Controllers\Concerns;
 
 use App\Models\Candidature;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 
 trait StoresCandidatureFichiers
 {
+    /** @return array<int, UploadedFile> */
+    protected function fichiersFromRequest(Request $request): array
+    {
+        $files = $request->file('fichiers');
+
+        if ($files === null) {
+            return [];
+        }
+
+        return is_array($files) ? array_values($files) : [$files];
+    }
+
+    protected function requestHasFichiers(Request $request): bool
+    {
+        return $this->fichiersFromRequest($request) !== [];
+    }
+
     /**
      * @param  array<int, UploadedFile>  $files
      * @return array{stored: int, failed: array<int, string>}

@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidatesCandidatureFichiers;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCandidatureRequest extends FormRequest
 {
+    use ValidatesCandidatureFichiers;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -18,11 +21,10 @@ class UpdateCandidatureRequest extends FormRequest
             'poste'            => 'required|string|max:255',
             'url_offre'        => 'nullable|url|max:255',
             'statut'           => 'required|in:en_attente,relance,entretien,offre,refuse,abandonne',
-            'priorite'        => 'required|in:haute,moyenne,basse',
+            'priorite'         => 'required|in:haute,moyenne,basse',
             'notes'            => 'nullable|string',
             'date_candidature' => 'required|date',
-            'fichiers'         => 'nullable|array|max:10',
-            'fichiers.*'       => 'file|mimes:pdf,doc,docx|max:5120',
+            ...$this->candidatureFichierRules(),
         ];
     }
 }
