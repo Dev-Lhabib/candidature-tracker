@@ -2,93 +2,78 @@
 
 **CandidatureTracker** est une application web de suivi de candidatures professionnelles. Chaque utilisateur gère ses offres, entretiens, pièces jointes et statistiques depuis un espace personnel sécurisé.
 
-Projet **Laravel 13** (cadre pédagogique) : authentification, CRUD, policies, soft delete, uploads, tests PHPUnit, Docker MySQL.
+Projet **Laravel 13** : authentification Breeze, CRUD, policies, soft delete, uploads, tests PHPUnit, MySQL via Docker.
 
 ---
 
-## Sommaire
+## 🧭 Project Overview
 
-1. [À quoi sert l'application ?](#à-quoi-sert-lapplication-)
-2. [Fonctionnalités](#fonctionnalités)
-3. [Stack & prérequis](#stack--prérequis)
-4. [Installation rapide](#installation-rapide)
-5. [Lancement](#lancement)
-6. [Comptes de démo](#comptes-de-démo)
-7. [Tests](#tests)
-8. [Modèle de données — MCD](#modèle-de-données--mcd)
-9. [Modèle de données — MLD](#modèle-de-données--mld)
-10. [Architecture](#architecture)
-11. [Structure du projet](#structure-du-projet)
-12. [Audit qualité (sprint)](#audit-qualité-sprint)
-13. [Démo jury (résumé)](#démo-jury-résumé)
+Pendant une recherche d'emploi, il est difficile de suivre plusieurs candidatures en parallèle. L'application centralise :
 
----
-
-## À quoi sert l'application ?
-
-Pendant une recherche d'emploi, il est difficile de suivre plusieurs candidatures en parallèle. **CandidatureTracker** centralise :
-
-| Besoin | Solution dans l'app |
-|--------|---------------------|
+| Besoin | Solution |
+|--------|----------|
 | Où j'ai postulé | Fiche **candidature** (entreprise, poste, date, lien offre, notes) |
-| Où j'en suis | **Statut** (en attente, relancé, entretien, offre, refusé, abandonné) et **priorité** |
-| Mes rendez-vous | **Entretiens** liés à chaque candidature (type, date, résultat) |
-| Mes documents | **Pièces jointes** PDF / DOC / DOCX par candidature |
-| Vue globale | **Tableau de bord** (statistiques, prochains entretiens, répartitions) |
-| Nettoyage | **Archives** (soft delete + restauration ou suppression définitive) |
+| Où j'en suis | **Statut** et **priorité** |
+| Mes rendez-vous | **Entretiens** (type, date, résultat, notes de préparation) |
+| Mes documents | **Pièces jointes** PDF / DOC / DOCX |
+| Vue globale | **Tableau de bord** (KPI, agenda entretiens, graphiques) |
+| Nettoyage | **Archives** (soft delete, restauration, suppression définitive) |
 
-**Isolation des données** : un utilisateur ne voit et ne modifie que **ses** candidatures (Laravel Policies → HTTP 403 si accès croisé).
+**Isolation des données** : un utilisateur ne voit et ne modifie que **ses** candidatures (`CandidaturePolicy` → HTTP 403 si accès croisé).
 
----
+### Fonctionnalités principales
 
-## Fonctionnalités
-
-### Authentification
-- Inscription, connexion, déconnexion (Laravel Breeze)
-- Vérification e-mail (middleware `verified` sur le dashboard)
-
-### Candidatures
-- Liste avec **filtres** statut / priorité
-- Création, détail, modification
-- **Pièces jointes** à la création ou depuis la modification (plusieurs fichiers, max 5 Mo, PDF/DOC/DOCX)
-- **Archivage** (soft delete) et page **Archives** (restaurer / supprimer définitivement)
-
-### Entretiens
-- Page dédiée **Nouvel entretien** avec liste déroulante des candidatures
-- Lien depuis la fiche candidature (candidature pré-sélectionnée)
-- Modification et suppression depuis le détail candidature
-
-### Tableau de bord (`/dashboard`)
-- Nombre de candidatures actives, entretiens, archives
-- Taux candidatures en entretien ou avec offre
-- Graphiques par **statut** et **priorité**
-- Prochains entretiens et dernières candidatures
-
-### Sécurité & qualité
-- `CandidaturePolicy` sur toutes les actions sensibles
-- Validation via **Form Requests**
-- Tests automatisés (PHPUnit)
-- Eager loading pour limiter les requêtes N+1
+- **Auth** — Inscription, connexion, profil, vérification e-mail (`verified` sur le dashboard)
+- **Candidatures** — Liste filtrable, CRUD, archivage, pièces jointes multiples (5 Mo max)
+- **Entretiens** — Création (date future obligatoire), édition (date libre), types enum, résultat dont **Annulé**
+- **Dashboard** — Prochain entretien, alertes préparation, résultats à renseigner, répartitions statut/priorité
 
 ---
 
-## Stack & prérequis
+## 🛠 Tech Stack
 
-| Composant | Détail |
-|-----------|--------|
-| PHP | 8.3+ |
-| Laravel | 13 |
-| Base | MySQL 8 (Docker) |
+| Couche | Technologie |
+|--------|-------------|
+| Backend | PHP 8.3, Laravel 13 |
 | Auth | Laravel Breeze (Blade) |
+| Base de données | MySQL 8.0 (Docker) |
+| ORM | Eloquent |
 | Front | Blade, Tailwind CSS, Vite, Alpine.js |
 | Tests | PHPUnit |
-| Dev | Docker Compose, Laravel Debugbar (optionnel) |
+| Dev | Docker Compose (MySQL + phpMyAdmin), Laravel Debugbar (optionnel) |
+| Fichiers | `Storage` disque `local` |
 
-**À installer** : PHP, Composer, Node.js/npm, Docker + Docker Compose, Git.
+**Prérequis locaux** : PHP, Composer, Node.js/npm, Docker + Docker Compose, Git.
 
 ---
 
-## Installation rapide
+## 🏗 Architecture
+
+```
+Requête HTTP
+    → middleware (auth, verified)
+    → Controller
+    → $this->authorize() / Policy
+    → Form Request (validation)
+    → Model Eloquent
+    → Blade View
+```
+
+| Couche | Emplacement | Rôle |
+|--------|-------------|------|
+| Routes | `routes/web.php`, `routes/auth.php` | URIs nommées, middleware `auth` |
+| Controllers | `app/Http/Controllers/` | Logique HTTP, eager loading |
+| Form Requests | `app/Http/Requests/` | Règles de validation (pas de `$request->validate()` dans les controllers) |
+| Policies | `app/Policies/` | Propriété des ressources (`user_id`) |
+| Models | `app/Models/` | `Candidature`, `Entretien`, `CandidatureFichier`, `User` |
+| Views | `resources/views/` | Blade, composants, layout sidebar |
+| Storage | `storage/app/` | Fichiers privés `candidatures/{user_id}/` |
+
+**Controllers métier** : `DashboardController`, `CandidatureController`, `EntretienController`, `CandidatureFichierController`.
+
+---
+
+## 🚀 Getting Started
 
 ```bash
 git clone <url-du-repo> candidature-tracker
@@ -103,10 +88,40 @@ docker compose up -d
 php artisan migrate:fresh --seed
 ```
 
-### `.env` (extrait)
+Lancer l'application :
+
+```bash
+php artisan serve
+```
+
+- Application : **http://localhost:8000** (redirige vers `/dashboard`)
+- phpMyAdmin : **http://localhost:8081**
+
+Front en développement (hot reload) :
+
+```bash
+npm run dev
+```
+
+### Comptes de démo
+
+Créés par `php artisan db:seed` :
+
+| E-mail | Mot de passe | Usage |
+|--------|--------------|-------|
+| `alice@example.com` | `password` | Données de démo complètes |
+| `bob@example.com` | `password` | Tester le refus d'accès (403) aux données d'Alice |
+
+---
+
+## ⚙️ Environment Configuration
+
+Copier `.env.example` vers `.env`, puis ajuster :
 
 ```env
+APP_NAME=CandidatureTracker
 APP_URL=http://localhost:8000
+APP_LOCALE=fr
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -114,45 +129,134 @@ DB_PORT=3307
 DB_DATABASE=candidature_tracker
 DB_USERNAME=root
 DB_PASSWORD=root
+
+FILESYSTEM_DISK=local
+DEBUGBAR_ENABLED=true
 ```
+
+| Variable | Description |
+|----------|-------------|
+| `APP_URL` | URL de l'app (`php artisan serve`) |
+| `DB_*` | Connexion MySQL exposée par Docker sur le port **3307** |
+| `FILESYSTEM_DISK` | Stockage des pièces jointes (`local`) |
+| `DEBUGBAR_ENABLED` | Barre de debug (détection N+1) |
 
 | Port | Service |
 |------|---------|
-| `8000` | Application (`php artisan serve`) |
-| `3307` | MySQL (hôte) |
+| `8000` | Application Laravel |
+| `3307` | MySQL (hôte → conteneur `3306`) |
 | `8081` | phpMyAdmin |
 
 ---
 
-## Lancement
+## 🗄 Database
+
+### Schémas
+
+**MCD** (modèle conceptuel) :
+
+![MCD — Modèle conceptuel de données](docs/MCD.png)
+
+**MLD** (modèle logique) :
+
+![MLD — Modèle logique de données](docs/MLD.png)
+
+> Les pièces jointes sont dans `candidature_fichiers` (relation 1,N avec `candidatures`).
+
+### Commandes
 
 ```bash
-php artisan serve
+docker compose -f compose.yaml up -d
+php artisan migrate
+php artisan db:seed
+# ou réinitialisation complète :
+php artisan migrate:fresh --seed
 ```
 
-- Application : **http://localhost:8000** → redirige vers le **tableau de bord**
-- phpMyAdmin : **http://localhost:8081** (`root` / `root`, base `candidature_tracker`)
+### Tables métier (résumé)
 
-En développement, lancer aussi Vite si vous modifiez le front :
+| Table | Description |
+|-------|-------------|
+| `users` | Comptes (Breeze) |
+| `candidatures` | Candidatures (`deleted_at` = soft delete) |
+| `entretiens` | Entretiens liés à une candidature |
+| `candidature_fichiers` | Pièces jointes (nom, chemin) |
 
-```bash
-npm run dev
-```
+#### `candidatures`
+
+| Colonne | Type | Notes |
+|---------|------|-------|
+| `statut` | ENUM | `en_attente`, `relance`, `entretien`, `offre`, `refuse`, `abandonne` |
+| `priorite` | ENUM | `haute`, `moyenne`, `basse` |
+| `deleted_at` | TIMESTAMP | Archivage (SoftDeletes) |
+
+#### `entretiens`
+
+| Colonne | Type | Notes |
+|---------|------|-------|
+| `type` | ENUM | `telephone`, `visio`, `presentiel`, `technique`, `rh` |
+| `resultat` | ENUM | `en_attente`, `positif`, `negatif`, `annule` |
+| `date_heure` | DATETIME | Création : futur uniquement ; édition : toute date valide |
+
+Diagrammes détaillés : [docs/MCD-MLD.md](docs/MCD-MLD.md) (si présent localement).
 
 ---
 
-## Comptes de démo
+## 🗺 Routes Reference
 
-Créés par `php artisan db:seed` :
+Toutes les routes métier sont protégées par `middleware('auth')`. Le dashboard exige aussi `verified`.
 
-| E-mail | Mot de passe | Rôle |
-|--------|--------------|------|
-| `alice@example.com` | `password` | Données de démo complètes |
-| `bob@example.com` | `password` | Tester le refus d'accès (403) aux données d'Alice |
+### Application
+
+| Méthode | URI | Nom | Description |
+|---------|-----|-----|-------------|
+| GET | `/` | — | Redirection → `/dashboard` |
+| GET | `/dashboard` | `dashboard` | Tableau de bord |
+
+### Candidatures
+
+| Méthode | URI | Nom | Description |
+|---------|-----|-----|-------------|
+| GET | `/candidatures` | `candidatures.index` | Liste (+ filtres statut / priorité) |
+| GET | `/candidatures/create` | `candidatures.create` | Formulaire création |
+| POST | `/candidatures` | `candidatures.store` | Enregistrer |
+| GET | `/candidatures/archives` | `candidatures.archives` | Candidatures archivées |
+| GET | `/candidatures/{candidature}` | `candidatures.show` | Détail + entretiens |
+| GET | `/candidatures/{candidature}/edit` | `candidatures.edit` | Modifier |
+| PUT | `/candidatures/{candidature}` | `candidatures.update` | Mettre à jour |
+| DELETE | `/candidatures/{candidature}` | `candidatures.destroy` | Archiver (soft delete) |
+| PUT | `/candidatures/{id}/restore` | `candidatures.restore` | Restaurer depuis archives |
+| DELETE | `/candidatures/{id}/force` | `candidatures.forceDelete` | Suppression définitive |
+| GET | `/candidatures/{candidature}/fichiers/{fichier}/download` | `candidatures.fichiers.download` | Télécharger une pièce jointe |
+| DELETE | `/candidatures/{candidature}/fichiers/{fichier}` | `candidatures.fichiers.destroy` | Supprimer un fichier |
+
+> `/candidatures/archives` est déclaré **avant** `/candidatures/{candidature}` pour éviter le conflit de routes.
+
+### Entretiens
+
+| Méthode | URI | Nom | Description |
+|---------|-----|-----|-------------|
+| GET | `/entretiens/create` | `entretiens.create` | Nouvel entretien (`?candidature_id=` optionnel) |
+| POST | `/entretiens` | `entretiens.store` | Créer (date ≥ maintenant) |
+| GET | `/entretiens/{entretien}/edit` | `entretiens.edit` | Modifier (date libre) |
+| PUT | `/entretiens/{entretien}` | `entretiens.update` | Mettre à jour |
+| DELETE | `/entretiens/{entretien}` | `entretiens.destroy` | Supprimer |
+
+### Profil & Auth (Breeze)
+
+| Méthode | URI | Nom |
+|---------|-----|-----|
+| GET | `/profile` | `profile.edit` |
+| PATCH | `/profile` | `profile.update` |
+| GET/POST | `/login`, `/register`, `/logout` | `login`, `register`, `logout` |
+| GET/POST | `/forgot-password`, `/reset-password` | Réinitialisation mot de passe |
+| GET | `/verify-email` | Vérification e-mail |
+
+Lister toutes les routes : `php artisan route:list`
 
 ---
 
-## Tests
+## 🧪 Running Tests
 
 Créer la base de test (une fois) :
 
@@ -161,198 +265,55 @@ mysql -h 127.0.0.1 -P 3307 -u root -proot \
   -e "CREATE DATABASE IF NOT EXISTS candidature_tracker_testing;"
 ```
 
+Exécuter la suite :
+
 ```bash
 php artisan test
 ```
 
-Couverture : authentification, policies, CRUD candidatures, archives, uploads, entretiens, dashboard.
+| Fichier | Couverture |
+|--------|------------|
+| `AuthAccessTest` | Redirection invité |
+| `PolicyTest` | Accès croisé (403) |
+| `CandidatureTest` | CRUD, validation |
+| `ArchiveTest` | Archivage / restauration |
+| `FileUploadTest` | Upload / download |
+| `EntretienTest` | CRUD entretiens, date future à la création |
+| `DashboardTest` | Tableau de bord |
 
 ---
 
-## Modèle de données — MCD
+## 🛡 Security Checklist
 
-**MCD** (modèle conceptuel) : entités métier et cardinalités, sans détail technique.
-
-```mermaid
-erDiagram
-    UTILISATEUR ||--o{ CANDIDATURE : possede
-    CANDIDATURE ||--o{ ENTRETIEN : contient
-    CANDIDATURE ||--o{ FICHIER : possede
-
-    UTILISATEUR {
-        string nom
-        string email
-        string mot_de_passe
-    }
-
-    CANDIDATURE {
-        string entreprise
-        string poste
-        string url_offre
-        enum statut
-        enum priorite
-        text notes
-        date date_candidature
-        datetime supprime_le
-    }
-
-    ENTRETIEN {
-        enum type
-        datetime date_heure
-        text notes_preparation
-        enum resultat
-    }
-
-    FICHIER {
-        string nom_original
-        string chemin_stockage
-    }
-```
-
-**Légende des relations**
-
-| Relation | Cardinalité | Signification |
-|----------|-------------|---------------|
-| Utilisateur → Candidature | 1,N | Un utilisateur a plusieurs candidatures |
-| Candidature → Entretien | 1,N | Une candidature peut avoir plusieurs entretiens |
-| Candidature → Fichier | 1,N | Une candidature peut avoir plusieurs pièces jointes |
-
-**Règles métier**
-- Une candidature appartient à **un seul** utilisateur.
-- Archivage = marquage logique (`deleted_at`), pas de suppression immédiate en base.
-- Suppression d'une candidature entraîne la suppression des entretiens et fichiers associés (cascade).
+| Point | Implémentation |
+|-------|----------------|
+| Authentification | Middleware `auth` sur toutes les routes métier |
+| Vérification e-mail | Middleware `verified` sur `/dashboard` |
+| Autorisation | `CandidaturePolicy`, `EntretienPolicy` + `$this->authorize()` |
+| Pas d'IDOR | `user_id` toujours depuis `auth()->id()`, jamais depuis le formulaire |
+| Validation serveur | Form Requests (`Store*`, `Update*`, `Filter*`) |
+| CSRF | `@csrf` sur tous les formulaires |
+| Fichiers | Téléchargement via controller + policy (pas d'URL publique directe) |
+| Types fichiers | `mimes:pdf,doc,docx`, taille max 5 Mo |
+| Soft delete | Pas de fuite des candidatures archivées dans les listes actives |
+| Scope bindings | `scopeBindings()` sur le groupe de routes |
 
 ---
 
-## Modèle de données — MLD
+## 🧠 Key Laravel Concepts
 
-**MLD** (modèle logique) : tables, clés primaires (PK), clés étrangères (FK) et types SQL implémentés en MySQL.
-
-```mermaid
-erDiagram
-    users ||--o{ candidatures : "user_id"
-    candidatures ||--o{ entretiens : "candidature_id"
-    candidatures ||--o{ candidature_fichiers : "candidature_id"
-
-    users {
-        bigint id PK
-        varchar name
-        varchar email UK
-        timestamp email_verified_at
-        varchar password
-        varchar remember_token
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    candidatures {
-        bigint id PK
-        bigint user_id FK
-        varchar entreprise
-        varchar poste
-        varchar url_offre
-        enum statut
-        enum priorite
-        text notes
-        date date_candidature
-        timestamp deleted_at
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    entretiens {
-        bigint id PK
-        bigint candidature_id FK
-        enum type
-        datetime date_heure
-        text notes_preparation
-        enum resultat
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    candidature_fichiers {
-        bigint id PK
-        bigint candidature_id FK
-        varchar nom_original
-        varchar chemin
-        timestamp created_at
-        timestamp updated_at
-    }
-```
-
-### Détail des tables
-
-#### `users`
-| Colonne | Type | Contrainte |
-|---------|------|------------|
-| `id` | BIGINT | PK, auto-increment |
-| `name` | VARCHAR | NOT NULL |
-| `email` | VARCHAR | UNIQUE, NOT NULL |
-| `email_verified_at` | TIMESTAMP | NULLABLE |
-| `password` | VARCHAR | NOT NULL |
-| `remember_token` | VARCHAR | NULLABLE |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-#### `candidatures`
-| Colonne | Type | Contrainte |
-|---------|------|------------|
-| `id` | BIGINT | PK |
-| `user_id` | BIGINT | FK → `users.id`, ON DELETE CASCADE |
-| `entreprise`, `poste` | VARCHAR | NOT NULL |
-| `url_offre` | VARCHAR | NULLABLE |
-| `statut` | ENUM | `en_attente`, `relance`, `entretien`, `offre`, `refuse`, `abandonne` |
-| `priorite` | ENUM | `haute`, `moyenne`, `basse` |
-| `notes` | TEXT | NULLABLE |
-| `date_candidature` | DATE | NOT NULL |
-| `deleted_at` | TIMESTAMP | NULLABLE (SoftDeletes) |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-#### `entretiens`
-| Colonne | Type | Contrainte |
-|---------|------|------------|
-| `id` | BIGINT | PK |
-| `candidature_id` | BIGINT | FK → `candidatures.id`, ON DELETE CASCADE |
-| `type` | ENUM | `telephone`, `visio`, `presentiel`, `technique`, `rh` |
-| `date_heure` | DATETIME | NOT NULL |
-| `notes_preparation` | TEXT | NULLABLE |
-| `resultat` | ENUM | `en_attente`, `positif`, `negatif` |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-#### `candidature_fichiers`
-| Colonne | Type | Contrainte |
-|---------|------|------------|
-| `id` | BIGINT | PK |
-| `candidature_id` | BIGINT | FK → `candidatures.id`, ON DELETE CASCADE |
-| `nom_original` | VARCHAR | Nom affiché à l'utilisateur |
-| `chemin` | VARCHAR | Chemin sur disque (`storage/app/...`) |
-| `created_at`, `updated_at` | TIMESTAMP | |
-
-> Tables Laravel standards (hors métier) : `password_reset_tokens`, `sessions`, `cache`, `jobs`.
-
----
-
-## Architecture
-
-| Couche | Rôle |
-|--------|------|
-| **Routes** | `routes/web.php` — middleware `auth`, routes nommées |
-| **Controllers** | `DashboardController`, `CandidatureController`, `EntretienController`, `CandidatureFichierController` |
-| **Form Requests** | Validation des entrées (candidatures, entretiens) |
-| **Policies** | `CandidaturePolicy`, `EntretienPolicy` — propriété via `user_id` |
-| **Models** | `User`, `Candidature`, `Entretien`, `CandidatureFichier` |
-| **Views** | Blade + composants (`x-app-layout`, badges, formulaires) |
-| **Storage** | Fichiers privés `local` — dossier `candidatures/{user_id}/` |
-
-**Routes importantes**
-
-| Méthode | URI | Nom |
-|---------|-----|-----|
-| GET | `/dashboard` | `dashboard` |
-| GET/POST | `/candidatures` | `candidatures.index` / `store` |
-| GET | `/candidatures/{id}` | `candidatures.show` |
-| GET | `/candidatures/archives` | `candidatures.archives` |
-| GET/POST | `/entretiens/create` | `entretiens.create` / `store` |
+| Concept | Usage dans le projet |
+|---------|----------------------|
+| **Eloquent** | Relations `User` → `Candidature` → `Entretien` / `CandidatureFichier` |
+| **Soft Deletes** | `Candidature::delete()` archive ; `restore()`, `onlyTrashed()` |
+| **Policies** | Qui peut voir / modifier / supprimer une candidature |
+| **Form Requests** | Validation centralisée (ex. date future à la création d'un entretien) |
+| **Route model binding** | `{candidature}`, `{entretien}` avec `scopeBindings()` |
+| **Named routes** | `route('candidatures.show', $c)` partout dans les vues |
+| **Eager loading** | `with('entretiens')`, `with('candidature')` — vérifier via Debugbar |
+| **Blade components** | `x-app-layout`, `x-status-badge`, `x-flash-alert` |
+| **Storage** | `store()` sur disque `local`, chemin en base |
+| **Factories & Seeders** | Données de démo (Alice / Bob) pour tests et présentation |
 
 ---
 
@@ -369,37 +330,19 @@ candidature-tracker/
 │   ├── Http/Requests/
 │   ├── Models/
 │   └── Policies/
-├── database/migrations/    # Schéma MySQL
-├── database/seeders/       # Alice, Bob, candidatures exemples
+├── database/migrations/
+├── database/seeders/
 ├── resources/views/
 │   ├── dashboard.blade.php
 │   ├── candidatures/
-│   └── entretiens/
+│   ├── entretiens/
+│   └── layouts/
 ├── routes/web.php
 ├── tests/Feature/
-├── compose.yaml            # MySQL + phpMyAdmin
+├── docs/                  # MCD.png, MLD.png
+├── compose.yaml           # MySQL + phpMyAdmin
 └── README.md
 ```
-
----
-
-## Audit qualité (sprint)
-
-Rapport d'audit code (Form Requests, policies, validation FR, suppression des `abort(404)` métier) :
-
-**[docs/AUDIT-SPRINT.md](docs/AUDIT-SPRINT.md)**
-
----
-
-## Démo jury (résumé)
-
-1. Connexion `alice@example.com` → **tableau de bord**
-2. Créer 2 candidatures (statuts / priorités différents) + pièces jointes
-3. **Nouvel entretien** (menu ou fiche candidature)
-4. Filtrer la liste par statut
-5. Archiver → **Archives** → restaurer
-6. Navigateur 2 : `bob@example.com` → tenter d'éditer la candidature d'Alice → **403**
-7. `php artisan test` → suite verte
 
 ---
 
