@@ -1,13 +1,51 @@
 @props(['entretien' => null])
 
+@php
+    $typeOptions = App\Models\Entretien::types(auth()->user());
+    $selectedType = old('type', $entretien?->type);
+    $isNewType = old('type') === '__new__' || ($selectedType && ! array_key_exists($selectedType, $typeOptions));
+    $minDateHeure = now()->format('Y-m-d\TH:i');
+    $dateHeureValue = old('date_heure');
+    if ($dateHeureValue === null) {
+        $stored = $entretien?->date_heure;
+        $dateHeureValue = ($stored && $stored->gte(now()))
+            ? $stored->format('Y-m-d\TH:i')
+            : $minDateHeure;
+    }
+@endphp
+
 <div class="space-y-5">
-    <div>
+    <div
+        x-data="{
+            typeMode: @js($isNewType ? '__new__' : $selectedType),
+            showCustom: @js($isNewType)
+        }"
+        x-init="$watch('typeMode', value => showCustom = value === '__new__')"
+    >
         <x-input-label for="type" value="Type *" />
-        <select id="type" name="type" class="form-select">
-            @foreach(App\Models\Entretien::types() as $key => $label)
-                <option value="{{ $key }}" {{ old('type', $entretien?->type) == $key ? 'selected' : '' }}>{{ $label }}</option>
+        <select
+            id="type"
+            name="type"
+            class="form-select"
+            x-model="typeMode"
+        >
+            @foreach($typeOptions as $key => $label)
+                <option value="{{ $key }}" @selected(!$isNewType && $selectedType === $key)>{{ $label }}</option>
             @endforeach
+            <option value="__new__" @selected($isNewType)>+ Ajouter un type…</option>
         </select>
+        <div x-show="showCustom" x-cloak class="mt-3">
+            <x-input-label for="type_custom" value="Nouveau type *" />
+            <x-text-input
+                id="type_custom"
+                name="type_custom"
+                type="text"
+                class="mt-1 block w-full"
+                :value="old('type_custom')"
+                placeholder="Ex. Assessment center"
+            />
+            <x-input-error :messages="$errors->get('type_custom')" class="mt-2" />
+        </div>
         <x-input-error :messages="$errors->get('type')" class="mt-2" />
     </div>
     <div>
@@ -16,8 +54,10 @@
             id="date_heure"
             name="date_heure"
             type="datetime-local"
-            :value="old('date_heure', $entretien?->date_heure?->format('Y-m-d\TH:i'))"
+            :value="$dateHeureValue"
+            :min="$minDateHeure"
         />
+        <p class="mt-1.5 text-xs text-slate-500">À partir de maintenant uniquement.</p>
         <x-input-error :messages="$errors->get('date_heure')" class="mt-2" />
     </div>
     <div>

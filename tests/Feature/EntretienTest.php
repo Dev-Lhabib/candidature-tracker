@@ -66,4 +66,42 @@ class EntretienTest extends TestCase
              ->assertOk()
              ->assertSee('value="'.$candidature->id.'"', false);
     }
+
+    public function test_rejects_past_date_heure_on_store(): void
+    {
+        $user = User::factory()->create();
+        $candidature = Candidature::factory()->for($user)->create();
+
+        $this->actingAs($user)->post(route('entretiens.store'), [
+            'candidature_id' => $candidature->id,
+            'type'           => 'visio',
+            'date_heure'     => now()->subDay()->format('Y-m-d\TH:i'),
+            'resultat'       => 'en_attente',
+        ])->assertSessionHasErrors('date_heure');
+    }
+
+    public function test_stores_entretien_with_custom_type(): void
+    {
+        $user = User::factory()->create();
+        $candidature = Candidature::factory()->for($user)->create();
+
+        $this->actingAs($user)->post(route('entretiens.store'), [
+            'candidature_id' => $candidature->id,
+            'type'           => '__new__',
+            'type_custom'    => 'Assessment center',
+            'date_heure'     => '2026-07-01T09:00',
+            'resultat'       => 'en_attente',
+        ])->assertRedirect(route('candidatures.show', $candidature));
+
+        $this->assertDatabaseHas('entretiens', [
+            'candidature_id' => $candidature->id,
+            'type'           => 'assessment_center',
+        ]);
+
+        $this->assertDatabaseHas('entretien_types', [
+            'user_id' => $user->id,
+            'slug'    => 'assessment_center',
+            'label'   => 'Assessment center',
+        ]);
+    }
 }

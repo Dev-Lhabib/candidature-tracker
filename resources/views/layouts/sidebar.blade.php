@@ -29,7 +29,11 @@
             Tableau de bord
         </x-sidebar-nav-link>
 
-        <x-sidebar-nav-link :href="route('candidatures.index')" :active="request()->routeIs('candidatures.index', 'candidatures.show', 'candidatures.edit')">
+        <x-sidebar-nav-link
+            :href="route('candidatures.index')"
+            :active="request()->routeIs('candidatures.index', 'candidatures.show', 'candidatures.edit')"
+            :count="$sidebarCandidaturesCount ?? 0"
+        >
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
             Mes candidatures
         </x-sidebar-nav-link>
@@ -44,7 +48,11 @@
             Nouvel entretien
         </x-sidebar-nav-link>
 
-        <x-sidebar-nav-link :href="route('candidatures.archives')" :active="request()->routeIs('candidatures.archives')">
+        <x-sidebar-nav-link
+            :href="route('candidatures.archives')"
+            :active="request()->routeIs('candidatures.archives')"
+            :count="$sidebarArchivesCount ?? 0"
+        >
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
             Archives
         </x-sidebar-nav-link>

@@ -51,16 +51,6 @@
                             <h1 class="text-lg font-semibold text-slate-900 truncate">{{ config('app.name') }}</h1>
                         @endisset
                     </div>
-
-                    <div class="hidden sm:flex items-center gap-3 pl-4 border-l border-slate-200">
-                        <div class="text-right">
-                            <p class="text-sm font-semibold text-slate-900">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-slate-500 truncate max-w-[180px]">{{ Auth::user()->email }}</p>
-                        </div>
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                        </div>
-                    </div>
                 </header>
 
                 {{-- Flash messages --}}

@@ -7,6 +7,7 @@ use App\Models\Entretien;
 use App\Policies\CandidaturePolicy;
 use App\Policies\EntretienPolicy;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,5 +23,20 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(Candidature::class, CandidaturePolicy::class);
         Gate::policy(Entretien::class, EntretienPolicy::class);
+
+        View::composer('layouts.sidebar', function ($view) {
+            if (! auth()->check()) {
+                return;
+            }
+
+            $user = auth()->user();
+
+            $view->with([
+                'sidebarCandidaturesCount' => $user->candidatures()->count(),
+                'sidebarArchivesCount'     => Candidature::onlyTrashed()
+                    ->where('user_id', $user->id)
+                    ->count(),
+            ]);
+        });
     }
 }
