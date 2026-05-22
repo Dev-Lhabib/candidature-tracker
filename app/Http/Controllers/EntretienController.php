@@ -7,14 +7,41 @@ use App\Http\Requests\UpdateEntretienRequest;
 use App\Models\Candidature;
 use App\Models\Entretien;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class EntretienController extends Controller
 {
-    public function store(StoreEntretienRequest $request, Candidature $candidature): RedirectResponse
+    public function create(Request $request): View
     {
+        $candidatures = auth()->user()->candidatures()
+            ->orderBy('entreprise')
+            ->get(['id', 'entreprise', 'poste']);
+
+        $selectedCandidatureId = null;
+        if ($request->filled('candidature_id')) {
+            $selectedCandidatureId = $candidatures->contains('id', (int) $request->candidature_id)
+                ? (int) $request->candidature_id
+                : null;
+        }
+
+        return view('entretiens.create', [
+            'candidatures'            => $candidatures,
+            'selectedCandidatureId'   => $selectedCandidatureId,
+        ]);
+    }
+
+    public function store(StoreEntretienRequest $request): RedirectResponse
+    {
+        $data = $request->validated();
+        $candidature = Candidature::where('id', $data['candidature_id'])
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
         $this->authorize('update', $candidature);
-        $candidature->entretiens()->create($request->validated());
+
+        unset($data['candidature_id']);
+        $candidature->entretiens()->create($data);
 
         return redirect()->route('candidatures.show', $candidature)
             ->with('success', 'Entretien ajouté.');

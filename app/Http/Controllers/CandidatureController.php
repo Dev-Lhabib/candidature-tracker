@@ -3,26 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\StoresCandidatureFichiers;
+use App\Http\Requests\FilterCandidatureRequest;
 use App\Http\Requests\StoreCandidatureRequest;
 use App\Http\Requests\UpdateCandidatureRequest;
 use App\Models\Candidature;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CandidatureController extends Controller
 {
     use StoresCandidatureFichiers;
 
-    public function index(Request $request): View
+    public function index(FilterCandidatureRequest $request): View
     {
+        $filters = $request->validated();
         $query = auth()->user()->candidatures()->with(['entretiens', 'fichiers']);
 
-        if ($request->filled('statut')) {
-            $query->where('statut', $request->statut);
+        if (!empty($filters['statut'])) {
+            $query->where('statut', $filters['statut']);
         }
-        if ($request->filled('priorite')) {
-            $query->where('priorite', $request->priorite);
+        if (!empty($filters['priorite'])) {
+            $query->where('priorite', $filters['priorite']);
         }
 
         $candidatures = $query->latest()->get();
@@ -123,7 +124,7 @@ class CandidatureController extends Controller
 
     public function restore(int $id)
     {
-        $candidature = Candidature::withTrashed()->where('id', $id)->firstOrFail();
+        $candidature = auth()->user()->candidatures()->withTrashed()->findOrFail($id);
         $this->authorize('restore', $candidature);
         $candidature->restore();
 
@@ -137,7 +138,7 @@ class CandidatureController extends Controller
 
     public function forceDelete(int $id)
     {
-        $candidature = Candidature::withTrashed()->where('id', $id)->firstOrFail();
+        $candidature = auth()->user()->candidatures()->withTrashed()->findOrFail($id);
         $this->authorize('delete', $candidature);
 
         $candidature->load('fichiers');

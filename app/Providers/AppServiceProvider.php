@@ -18,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        app()->setLocale(config('app.locale', 'fr'));
+
         Gate::policy(Candidature::class, CandidaturePolicy::class);
         Gate::policy(Entretien::class, EntretienPolicy::class);
     }

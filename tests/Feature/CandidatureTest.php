@@ -29,7 +29,8 @@ class CandidatureTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user)->post(route('candidatures.store'), [])
-             ->assertSessionHasErrors('entreprise');
+             ->assertSessionHasErrors('entreprise')
+             ->assertSessionHasErrors(['entreprise' => 'Le champ entreprise est obligatoire.']);
     }
 
     public function test_fails_validation_when_statut_is_invalid(): void

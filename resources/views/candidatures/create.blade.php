@@ -8,18 +8,20 @@
 
     <div class="max-w-2xl mx-auto">
         <div class="card">
-            <form method="POST" action="{{ route('candidatures.store') }}" enctype="multipart/form-data" class="card-body space-y-6">
+            <form method="POST" action="{{ route('candidatures.store') }}" enctype="multipart/form-data" novalidate class="card-body space-y-6">
                 @csrf
+
+                <x-validation-summary />
 
                 <div class="space-y-5">
                     <div>
                         <x-input-label for="entreprise" value="Entreprise *" />
-                        <x-text-input id="entreprise" name="entreprise" type="text" value="{{ old('entreprise') }}" required />
+                        <x-text-input id="entreprise" name="entreprise" type="text" value="{{ old('entreprise') }}" />
                         <x-input-error :messages="$errors->get('entreprise')" class="mt-2" />
                     </div>
                     <div>
                         <x-input-label for="poste" value="Poste *" />
-                        <x-text-input id="poste" name="poste" type="text" value="{{ old('poste') }}" required />
+                        <x-text-input id="poste" name="poste" type="text" value="{{ old('poste') }}" />
                         <x-input-error :messages="$errors->get('poste')" class="mt-2" />
                     </div>
                     <div>
@@ -30,7 +32,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <x-input-label for="statut" value="Statut *" />
-                            <select id="statut" name="statut" class="form-select mt-0" required>
+                            <select id="statut" name="statut" class="form-select mt-0">
                                 @foreach($statuts as $key => $label)
                                     <option value="{{ $key }}" {{ old('statut') == $key ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
@@ -39,7 +41,7 @@
                         </div>
                         <div>
                             <x-input-label for="priorite" value="Priorité *" />
-                            <select id="priorite" name="priorite" class="form-select mt-0" required>
+                            <select id="priorite" name="priorite" class="form-select mt-0">
                                 @foreach($priorites as $key => $label)
                                     <option value="{{ $key }}" {{ old('priorite') == $key ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
@@ -49,7 +51,7 @@
                     </div>
                     <div>
                         <x-input-label for="date_candidature" value="Date de candidature *" />
-                        <x-text-input id="date_candidature" name="date_candidature" type="date" value="{{ old('date_candidature') }}" required />
+                        <x-text-input id="date_candidature" name="date_candidature" type="date" value="{{ old('date_candidature') }}" />
                         <x-input-error :messages="$errors->get('date_candidature')" class="mt-2" />
                     </div>
                     <div>

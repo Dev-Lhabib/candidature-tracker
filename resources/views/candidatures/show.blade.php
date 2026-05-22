@@ -58,6 +58,8 @@
             </div>
         </div>
 
+        <x-confirm-delete-fichier-modal />
+
         <div class="flex flex-wrap items-center justify-between gap-3">
             <a href="{{ route('candidatures.index') }}" class="btn-ghost text-sm inline-flex">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -102,10 +104,11 @@
                                 <span class="text-sm font-medium text-slate-800 truncate">{{ $f->nom_original }}</span>
                                 <div class="flex gap-2 shrink-0">
                                     <a href="{{ route('candidatures.fichiers.download', [$candidature, $f]) }}" class="btn-secondary text-xs py-1.5">Télécharger</a>
-                                    <form method="POST" action="{{ route('candidatures.fichiers.destroy', [$candidature, $f]) }}" class="inline" onsubmit="return confirm('Supprimer ce fichier ?');">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn-ghost text-xs py-1.5 text-red-600">Supprimer</button>
-                                    </form>
+                                    <button
+                                        type="button"
+                                        class="btn-ghost text-xs py-1.5 text-red-600"
+                                        x-on:click="$dispatch('open-delete-fichier-modal', { url: @js(route('candidatures.fichiers.destroy', [$candidature, $f])), name: @js($f->nom_original) })"
+                                    >Supprimer</button>
                                 </div>
                             </li>
                         @endforeach
@@ -124,9 +127,14 @@
 
         <div class="card">
             <div class="card-body">
-                <h2 class="text-lg font-bold text-slate-900 mb-6">Entretiens</h2>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                    <h2 class="text-lg font-bold text-slate-900">Entretiens</h2>
+                    <a href="{{ route('entretiens.create', ['candidature_id' => $candidature->id]) }}" class="btn-primary text-sm py-2">
+                        Ajouter un entretien
+                    </a>
+                </div>
 
-                <div class="space-y-4 mb-8">
+                <div class="space-y-4">
                     @forelse($candidature->entretiens as $e)
                         <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col sm:flex-row sm:justify-between gap-4">
                             <div>
@@ -145,46 +153,11 @@
                             </div>
                         </div>
                     @empty
-                        <p class="text-center text-slate-500 py-8 rounded-xl border border-dashed border-slate-200">Aucun entretien enregistré</p>
+                        <p class="text-center text-slate-500 py-8 rounded-xl border border-dashed border-slate-200">
+                            Aucun entretien enregistré.
+                            <a href="{{ route('entretiens.create', ['candidature_id' => $candidature->id]) }}" class="text-brand-600 hover:text-brand-700 font-semibold">Ajouter un entretien</a>
+                        </p>
                     @endforelse
-                </div>
-
-                <div class="pt-6 border-t border-slate-200">
-                    <h3 class="text-sm font-bold text-slate-900 mb-4">Ajouter un entretien</h3>
-                    <form method="POST" action="{{ route('entretiens.store', $candidature) }}" class="space-y-4">
-                        @csrf
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <x-input-label for="type" value="Type *" />
-                                <select id="type" name="type" class="form-select" required>
-                                    @foreach(App\Models\Entretien::types() as $key => $label)
-                                        <option value="{{ $key }}">{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('type')" class="mt-2" />
-                            </div>
-                            <div>
-                                <x-input-label for="date_heure" value="Date et heure *" />
-                                <x-text-input id="date_heure" name="date_heure" type="datetime-local" required />
-                                <x-input-error :messages="$errors->get('date_heure')" class="mt-2" />
-                            </div>
-                        </div>
-                        <div>
-                            <x-input-label for="resultat" value="Résultat *" />
-                            <select id="resultat" name="resultat" class="form-select" required>
-                                @foreach(App\Models\Entretien::resultats() as $key => $label)
-                                    <option value="{{ $key }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('resultat')" class="mt-2" />
-                        </div>
-                        <div>
-                            <x-input-label for="notes_preparation" value="Notes de préparation" />
-                            <textarea id="notes_preparation" name="notes_preparation" rows="3" class="form-textarea"></textarea>
-                            <x-input-error :messages="$errors->get('notes_preparation')" class="mt-2" />
-                        </div>
-                        <x-primary-button>Ajouter l'entretien</x-primary-button>
-                    </form>
                 </div>
             </div>
         </div>

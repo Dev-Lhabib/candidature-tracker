@@ -1,6 +1,6 @@
 <aside
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-    class="fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-surface-sidebar text-white shadow-sidebar transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto"
+    class="fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col bg-surface-sidebar text-white shadow-sidebar transition-transform duration-300 ease-in-out lg:translate-x-0"
 >
     {{-- Brand --}}
     <div class="flex h-16 items-center gap-3 px-5 border-b border-white/10 shrink-0">
@@ -10,7 +10,7 @@
             </svg>
         </div>
         <div class="min-w-0">
-            <a href="{{ route('candidatures.index') }}" class="block font-bold text-white truncate tracking-tight">
+            <a href="{{ route('dashboard') }}" class="block font-bold text-white truncate tracking-tight">
                 CandidatureTracker
             </a>
             <p class="text-[11px] text-slate-500 font-medium">Suivi de candidatures</p>
@@ -24,6 +24,11 @@
     <nav class="flex-1 overflow-y-auto px-3 py-5 space-y-1">
         <p class="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menu</p>
 
+        <x-sidebar-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+            Tableau de bord
+        </x-sidebar-nav-link>
+
         <x-sidebar-nav-link :href="route('candidatures.index')" :active="request()->routeIs('candidatures.index', 'candidatures.show', 'candidatures.edit')">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
             Mes candidatures
@@ -32,6 +37,11 @@
         <x-sidebar-nav-link :href="route('candidatures.create')" :active="request()->routeIs('candidatures.create')">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Nouvelle candidature
+        </x-sidebar-nav-link>
+
+        <x-sidebar-nav-link :href="route('entretiens.create')" :active="request()->routeIs('entretiens.create', 'entretiens.edit')">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Nouvel entretien
         </x-sidebar-nav-link>
 
         <x-sidebar-nav-link :href="route('candidatures.archives')" :active="request()->routeIs('candidatures.archives')">

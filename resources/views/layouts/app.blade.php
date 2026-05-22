@@ -13,7 +13,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans" x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
-        <div class="min-h-screen lg:flex">
+        <div class="min-h-screen">
             {{-- Mobile overlay --}}
             <div
                 x-show="sidebarOpen"
@@ -30,7 +30,7 @@
 
             @include('layouts.sidebar')
 
-            <div class="flex-1 flex flex-col min-h-screen lg:min-w-0">
+            <div class="flex min-h-screen flex-1 flex-col lg:pl-72 lg:min-w-0">
                 {{-- Top bar --}}
                 <header class="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 border-b border-slate-200/80 bg-white/80 backdrop-blur-md px-4 sm:px-6 lg:px-8">
                     <button

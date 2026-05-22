@@ -7,19 +7,23 @@
     </x-slot>
 
     <div class="max-w-2xl mx-auto">
+        <x-confirm-delete-fichier-modal />
+
         <div class="card">
-            <form method="POST" action="{{ route('candidatures.update', $candidature) }}" enctype="multipart/form-data" class="card-body space-y-6">
+            <form method="POST" action="{{ route('candidatures.update', $candidature) }}" enctype="multipart/form-data" novalidate class="card-body space-y-6">
                 @csrf @method('PUT')
+
+                <x-validation-summary />
 
                 <div class="space-y-5">
                     <div>
                         <x-input-label for="entreprise" value="Entreprise *" />
-                        <x-text-input id="entreprise" name="entreprise" type="text" value="{{ old('entreprise', $candidature->entreprise) }}" required />
+                        <x-text-input id="entreprise" name="entreprise" type="text" value="{{ old('entreprise', $candidature->entreprise) }}" />
                         <x-input-error :messages="$errors->get('entreprise')" class="mt-2" />
                     </div>
                     <div>
                         <x-input-label for="poste" value="Poste *" />
-                        <x-text-input id="poste" name="poste" type="text" value="{{ old('poste', $candidature->poste) }}" required />
+                        <x-text-input id="poste" name="poste" type="text" value="{{ old('poste', $candidature->poste) }}" />
                         <x-input-error :messages="$errors->get('poste')" class="mt-2" />
                     </div>
                     <div>
@@ -30,7 +34,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <x-input-label for="statut" value="Statut *" />
-                            <select id="statut" name="statut" class="form-select" required>
+                            <select id="statut" name="statut" class="form-select">
                                 @foreach($statuts as $key => $label)
                                     <option value="{{ $key }}" {{ old('statut', $candidature->statut) == $key ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
@@ -39,7 +43,7 @@
                         </div>
                         <div>
                             <x-input-label for="priorite" value="Priorité *" />
-                            <select id="priorite" name="priorite" class="form-select" required>
+                            <select id="priorite" name="priorite" class="form-select">
                                 @foreach($priorites as $key => $label)
                                     <option value="{{ $key }}" {{ old('priorite', $candidature->priorite) == $key ? 'selected' : '' }}>{{ $label }}</option>
                                 @endforeach
@@ -49,7 +53,7 @@
                     </div>
                     <div>
                         <x-input-label for="date_candidature" value="Date de candidature *" />
-                        <x-text-input id="date_candidature" name="date_candidature" type="date" value="{{ old('date_candidature', $candidature->date_candidature->format('Y-m-d')) }}" required />
+                        <x-text-input id="date_candidature" name="date_candidature" type="date" value="{{ old('date_candidature', $candidature->date_candidature->format('Y-m-d')) }}" />
                         <x-input-error :messages="$errors->get('date_candidature')" class="mt-2" />
                     </div>
                     <div>
@@ -65,10 +69,9 @@
                                 <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
                                     <a href="{{ route('candidatures.fichiers.download', [$candidature, $f]) }}" class="text-brand-600 hover:text-brand-700 font-medium truncate">{{ $f->nom_original }}</a>
                                     <button
-                                        type="submit"
-                                        form="delete-fichier-{{ $f->id }}"
+                                        type="button"
                                         class="text-red-600 hover:text-red-700 text-xs font-semibold"
-                                        onclick="return confirm('Supprimer ce fichier ?');"
+                                        x-on:click="$dispatch('open-delete-fichier-modal', { url: @js(route('candidatures.fichiers.destroy', [$candidature, $f])), name: @js($f->nom_original) })"
                                     >Supprimer</button>
                                 </li>
                             @endforeach
@@ -86,17 +89,6 @@
                     <a href="{{ route('candidatures.show', $candidature) }}" class="btn-secondary">Annuler</a>
                 </div>
             </form>
-
-            @foreach($candidature->fichiers as $f)
-                <form
-                    id="delete-fichier-{{ $f->id }}"
-                    method="POST"
-                    action="{{ route('candidatures.fichiers.destroy', [$candidature, $f]) }}"
-                    class="hidden"
-                >
-                    @csrf @method('DELETE')
-                </form>
-            @endforeach
         </div>
     </div>
 </x-app-layout>

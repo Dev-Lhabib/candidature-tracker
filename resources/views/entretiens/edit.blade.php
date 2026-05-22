@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div>
             <h1 class="page-title">Modifier l'entretien</h1>
-            <p class="page-subtitle">{{ $entretien->candidature->entreprise }}</p>
+            <p class="page-subtitle">{{ $entretien->candidature->entreprise }} — {{ $entretien->candidature->poste }}</p>
         </div>
     </x-slot>
 
@@ -13,39 +13,17 @@
         </a>
 
         <div class="card">
-            <form method="POST" action="{{ route('entretiens.update', $entretien) }}" class="card-body space-y-6">
+            <form method="POST" action="{{ route('entretiens.update', $entretien) }}" novalidate class="card-body space-y-6">
                 @csrf @method('PUT')
 
-                <div class="space-y-5">
-                    <div>
-                        <x-input-label for="type" value="Type *" />
-                        <select id="type" name="type" class="form-select" required>
-                            @foreach(App\Models\Entretien::types() as $key => $label)
-                                <option value="{{ $key }}" {{ old('type', $entretien->type) == $key ? 'selected' : '' }}>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error :messages="$errors->get('type')" class="mt-2" />
-                    </div>
-                    <div>
-                        <x-input-label for="date_heure" value="Date et heure *" />
-                        <x-text-input id="date_heure" name="date_heure" type="datetime-local" value="{{ old('date_heure', $entretien->date_heure->format('Y-m-d\TH:i')) }}" required />
-                        <x-input-error :messages="$errors->get('date_heure')" class="mt-2" />
-                    </div>
-                    <div>
-                        <x-input-label for="resultat" value="Résultat *" />
-                        <select id="resultat" name="resultat" class="form-select" required>
-                            @foreach(App\Models\Entretien::resultats() as $key => $label)
-                                <option value="{{ $key }}" {{ old('resultat', $entretien->resultat) == $key ? 'selected' : '' }}>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error :messages="$errors->get('resultat')" class="mt-2" />
-                    </div>
-                    <div>
-                        <x-input-label for="notes_preparation" value="Notes de préparation" />
-                        <textarea id="notes_preparation" name="notes_preparation" rows="4" class="form-textarea">{{ old('notes_preparation', $entretien->notes_preparation) }}</textarea>
-                        <x-input-error :messages="$errors->get('notes_preparation')" class="mt-2" />
-                    </div>
+                <x-validation-summary />
+
+                <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Candidature</p>
+                    <p class="mt-1 font-semibold text-slate-900">{{ $entretien->candidature->entreprise }} — {{ $entretien->candidature->poste }}</p>
                 </div>
+
+                @include('entretiens.partials.form-fields', ['entretien' => $entretien])
 
                 <div class="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
                     <x-primary-button>Enregistrer</x-primary-button>
