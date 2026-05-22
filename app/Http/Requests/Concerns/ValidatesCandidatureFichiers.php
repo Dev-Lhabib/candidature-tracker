@@ -7,6 +7,11 @@ use Illuminate\Http\UploadedFile;
 
 trait ValidatesCandidatureFichiers
 {
+    /** @var list<string> */
+    private const ALLOWED_EXTENSIONS = ['pdf', 'doc', 'docx'];
+
+    private const MAX_FILE_KILOBYTES = 5120;
+
     /** @return array<string, mixed> */
     protected function candidatureFichierRules(): array
     {
@@ -32,21 +37,21 @@ trait ValidatesCandidatureFichiers
             return;
         }
 
+        // Erreur PHP (ex. fichier trop gros côté serveur) : pas d'erreur ici, le controller affiche un warning.
         if (!$value->isValid()) {
             return;
         }
 
         $extension = strtolower($value->getClientOriginalExtension());
-        $allowed = ['pdf', 'doc', 'docx'];
 
-        if (!in_array($extension, $allowed, true)) {
+        if (!in_array($extension, self::ALLOWED_EXTENSIONS, true)) {
             $fail(__('validation.mimes', ['attribute' => 'fichier', 'values' => 'pdf, doc, docx']));
 
             return;
         }
 
-        if ($value->getSize() > 5 * 1024 * 1024) {
-            $fail(__('validation.max.file', ['attribute' => 'fichier', 'max' => 5120]));
+        if ($value->getSize() > self::MAX_FILE_KILOBYTES * 1024) {
+            $fail(__('validation.max.file', ['attribute' => 'fichier', 'max' => self::MAX_FILE_KILOBYTES]));
         }
     }
 }

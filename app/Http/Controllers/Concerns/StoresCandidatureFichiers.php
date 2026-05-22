@@ -20,11 +20,6 @@ trait StoresCandidatureFichiers
         return is_array($files) ? array_values($files) : [$files];
     }
 
-    protected function requestHasFichiers(Request $request): bool
-    {
-        return $this->fichiersFromRequest($request) !== [];
-    }
-
     /**
      * @param  array<int, UploadedFile>  $files
      * @return array{stored: int, failed: array<int, string>}

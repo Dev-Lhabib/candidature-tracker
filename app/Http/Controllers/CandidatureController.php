@@ -53,8 +53,9 @@ class CandidatureController extends Controller
 
         $flash = ['success' => 'Candidature créée avec succès.'];
 
-        if ($this->requestHasFichiers($request)) {
-            $result = $this->storeFichiers($candidature, $this->fichiersFromRequest($request));
+        $files = $this->fichiersFromRequest($request);
+        if ($files !== []) {
+            $result = $this->storeFichiers($candidature, $files);
             $flash = $this->fichierUploadFlash($result, 'Candidature créée avec succès.');
         }
 
@@ -93,8 +94,9 @@ class CandidatureController extends Controller
 
         $flash = ['success' => 'Candidature mise à jour.'];
 
-        if ($this->requestHasFichiers($request)) {
-            $result = $this->storeFichiers($candidature, $this->fichiersFromRequest($request));
+        $files = $this->fichiersFromRequest($request);
+        if ($files !== []) {
+            $result = $this->storeFichiers($candidature, $files);
             $flash = $this->fichierUploadFlash($result, 'Candidature mise à jour.');
         }
 
