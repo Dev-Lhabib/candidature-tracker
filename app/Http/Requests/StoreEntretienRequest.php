@@ -2,22 +2,15 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Requests\Concerns\ResolvesEntretienType;
+use App\Models\Entretien;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreEntretienRequest extends FormRequest
 {
-    use ResolvesEntretienType;
-
     public function authorize(): bool
     {
         return $this->user() !== null;
-    }
-
-    protected function prepareForValidation(): void
-    {
-        $this->prepareEntretienType();
     }
 
     public function rules(): array
@@ -28,10 +21,25 @@ class StoreEntretienRequest extends FormRequest
                 'integer',
                 Rule::exists('candidatures', 'id')->where(fn ($query) => $query->where('user_id', $this->user()->id)),
             ],
-            ...$this->entretienTypeRules(),
-            ...$this->entretienDateHeureRules(),
+            'type'              => 'required|in:'.Entretien::TYPE_SLUGS,
+            'date_heure'        => ['required', 'date', 'after_or_equal:now'],
             'notes_preparation' => 'nullable|string',
-            'resultat'          => 'required|in:en_attente,positif,negatif',
+            'resultat'          => 'required|in:'.Entretien::RESULTAT_SLUGS,
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'date_heure.after_or_equal' => 'La date et l\'heure doivent être maintenant ou dans le futur. Une date passée n\'est pas autorisée lors de la création.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'date_heure' => 'date et heure',
+            'resultat'   => 'résultat',
         ];
     }
 }

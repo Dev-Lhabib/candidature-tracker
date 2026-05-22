@@ -72,36 +72,60 @@ class EntretienTest extends TestCase
         $user = User::factory()->create();
         $candidature = Candidature::factory()->for($user)->create();
 
-        $this->actingAs($user)->post(route('entretiens.store'), [
-            'candidature_id' => $candidature->id,
-            'type'           => 'visio',
-            'date_heure'     => now()->subDay()->format('Y-m-d\TH:i'),
-            'resultat'       => 'en_attente',
-        ])->assertSessionHasErrors('date_heure');
+        $this->actingAs($user)
+             ->from(route('entretiens.create'))
+             ->post(route('entretiens.store'), [
+                 'candidature_id' => $candidature->id,
+                 'type'           => 'visio',
+                 'date_heure'     => now()->subDay()->format('Y-m-d\TH:i'),
+                 'resultat'       => 'en_attente',
+             ])
+             ->assertRedirect(route('entretiens.create'))
+             ->assertSessionHasErrors([
+                 'date_heure' => 'La date et l\'heure doivent être maintenant ou dans le futur. Une date passée n\'est pas autorisée lors de la création.',
+             ]);
     }
 
-    public function test_stores_entretien_with_custom_type(): void
+    public function test_update_accepts_annule_resultat(): void
     {
         $user = User::factory()->create();
         $candidature = Candidature::factory()->for($user)->create();
+        $entretien = Entretien::factory()->for($candidature)->create([
+            'date_heure' => now()->addDay(),
+        ]);
 
-        $this->actingAs($user)->post(route('entretiens.store'), [
-            'candidature_id' => $candidature->id,
-            'type'           => '__new__',
-            'type_custom'    => 'Assessment center',
-            'date_heure'     => '2026-07-01T09:00',
-            'resultat'       => 'en_attente',
+        $this->actingAs($user)->put(route('entretiens.update', $entretien), [
+            'type'       => 'visio',
+            'date_heure' => $entretien->date_heure->format('Y-m-d\TH:i'),
+            'resultat'   => 'annule',
         ])->assertRedirect(route('candidatures.show', $candidature));
 
         $this->assertDatabaseHas('entretiens', [
-            'candidature_id' => $candidature->id,
-            'type'           => 'assessment_center',
+            'id'       => $entretien->id,
+            'resultat' => 'annule',
+        ]);
+    }
+
+    public function test_update_allows_past_date_heure(): void
+    {
+        $user = User::factory()->create();
+        $candidature = Candidature::factory()->for($user)->create();
+        $entretien = Entretien::factory()->for($candidature)->create([
+            'date_heure' => now()->subDays(5),
+            'resultat'   => 'en_attente',
         ]);
 
-        $this->assertDatabaseHas('entretien_types', [
-            'user_id' => $user->id,
-            'slug'    => 'assessment_center',
-            'label'   => 'Assessment center',
+        $pastDate = $entretien->date_heure->format('Y-m-d\TH:i');
+
+        $this->actingAs($user)->put(route('entretiens.update', $entretien), [
+            'type'       => 'rh',
+            'date_heure' => $pastDate,
+            'resultat'   => 'positif',
+        ])->assertRedirect(route('candidatures.show', $candidature));
+
+        $this->assertDatabaseHas('entretiens', [
+            'id'       => $entretien->id,
+            'resultat' => 'positif',
         ]);
     }
 }

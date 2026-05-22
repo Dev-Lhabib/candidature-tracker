@@ -14,7 +14,7 @@ return new class extends Migration
             $table->enum('type', ['telephone','visio','presentiel','technique','rh']);
             $table->dateTime('date_heure');
             $table->text('notes_preparation')->nullable();
-            $table->enum('resultat', ['en_attente','positif','negatif'])->default('en_attente');
+            $table->enum('resultat', ['en_attente','positif','negatif','annule'])->default('en_attente');
             $table->timestamps();
         });
     }

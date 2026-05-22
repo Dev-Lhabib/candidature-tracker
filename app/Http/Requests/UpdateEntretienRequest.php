@@ -2,30 +2,31 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Requests\Concerns\ResolvesEntretienType;
+use App\Models\Entretien;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateEntretienRequest extends FormRequest
 {
-    use ResolvesEntretienType;
-
     public function authorize(): bool
     {
         return $this->user() !== null;
     }
 
-    protected function prepareForValidation(): void
-    {
-        $this->prepareEntretienType();
-    }
-
     public function rules(): array
     {
         return [
-            ...$this->entretienTypeRules(),
-            ...$this->entretienDateHeureRules(),
+            'type'              => 'required|in:'.Entretien::TYPE_SLUGS,
+            'date_heure'        => 'required|date',
             'notes_preparation' => 'nullable|string',
-            'resultat'          => 'required|in:en_attente,positif,negatif',
+            'resultat'          => 'required|in:'.Entretien::RESULTAT_SLUGS,
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'date_heure' => 'date et heure',
+            'resultat'   => 'résultat',
         ];
     }
 }

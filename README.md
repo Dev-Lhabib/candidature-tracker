@@ -99,7 +99,7 @@ cp .env.example .env
 php artisan key:generate
 npm install && npm run build
 
-docker compose -f compose.yaml up -d
+docker compose up -d
 php artisan migrate:fresh --seed
 ```
 

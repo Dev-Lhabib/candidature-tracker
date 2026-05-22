@@ -13,6 +13,7 @@
         'basse'               => 'bg-emerald-100 text-emerald-800 ring-emerald-200/60',
         'positif'             => 'bg-emerald-100 text-emerald-800 ring-emerald-200/60',
         'negatif'             => 'bg-red-100 text-red-800 ring-red-200/60',
+        'annule'              => 'bg-slate-200 text-slate-700 ring-slate-300/60',
         default => 'bg-slate-100 text-slate-700 ring-slate-200/60',
     };
 @endphp

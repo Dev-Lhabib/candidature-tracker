@@ -3,9 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Candidature;
-use App\Models\Entretien;
 use App\Policies\CandidaturePolicy;
 use App\Policies\EntretienPolicy;
+use App\Models\Entretien;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;

@@ -29,7 +29,24 @@ class DashboardTest extends TestCase
              ->get(route('dashboard'))
              ->assertOk()
              ->assertSee('Tableau de bord')
-             ->assertSee('Candidatures actives')
-             ->assertSee('1', false);
+             ->assertSee('Prochain entretien')
+             ->assertSee('Agenda des entretiens')
+             ->assertSee('À venir');
+    }
+
+    public function test_dashboard_shows_preparation_alert_when_notes_missing(): void
+    {
+        $user = User::factory()->create();
+        $candidature = Candidature::factory()->for($user)->create();
+        Entretien::factory()->for($candidature)->create([
+            'date_heure'          => now()->addDays(3),
+            'notes_preparation'   => null,
+        ]);
+
+        $this->actingAs($user)
+             ->get(route('dashboard'))
+             ->assertOk()
+             ->assertSee('sans notes de préparation')
+             ->assertSee('À préparer en priorité');
     }
 }

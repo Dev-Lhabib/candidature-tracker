@@ -27,17 +27,47 @@ class DashboardController extends Controller
             ->groupBy('priorite')
             ->pluck('total', 'priorite');
 
-        $totalEntretiens = Entretien::whereHas(
-            'candidature',
-            fn ($q) => $q->where('user_id', $userId)
-        )->count();
+        $scopeUser = fn ($q) => $q->where('user_id', $userId);
 
-        $entretiensAVenir = Entretien::with('candidature')
-            ->whereHas('candidature', fn ($q) => $q->where('user_id', $userId))
+        $entretiensAVenirQuery = Entretien::query()
+            ->with('candidature')
+            ->whereHas('candidature', $scopeUser)
             ->where('date_heure', '>=', now())
-            ->orderBy('date_heure')
-            ->limit(5)
+            ->orderBy('date_heure');
+
+        $entretiensAVenirCount = (int) (clone $entretiensAVenirQuery)->count();
+        $prochainEntretien = (clone $entretiensAVenirQuery)->first();
+        $entretiensAVenir = (clone $entretiensAVenirQuery)->limit(8)->get();
+
+        $entretiensAujourdhui = (clone $entretiensAVenirQuery)
+            ->whereDate('date_heure', today())
             ->get();
+
+        $entretiensCetteSemaine = (int) (clone $entretiensAVenirQuery)
+            ->where('date_heure', '<=', now()->endOfWeek())
+            ->count();
+
+        $sansPreparationQuery = (clone $entretiensAVenirQuery)
+            ->where(function ($q) {
+                $q->whereNull('notes_preparation')->orWhere('notes_preparation', '');
+            });
+
+        $entretiensSansPreparation = (clone $sansPreparationQuery)->limit(5)->get();
+        $entretiensSansPreparationCount = (int) (clone $sansPreparationQuery)->count();
+
+        $resultatEnAttenteQuery = Entretien::query()
+            ->with('candidature')
+            ->whereHas('candidature', $scopeUser)
+            ->where('date_heure', '<', now())
+            ->where('resultat', 'en_attente')
+            ->orderByDesc('date_heure');
+
+        $entretiensResultatEnAttente = (clone $resultatEnAttenteQuery)->limit(5)->get();
+        $entretiensResultatEnAttenteCount = (int) (clone $resultatEnAttenteQuery)->count();
+
+        $candidaturesARelancer = $user->candidatures()
+            ->whereIn('statut', ['en_attente', 'relance'])
+            ->count();
 
         $recentCandidatures = $user->candidatures()
             ->latest()
@@ -51,16 +81,25 @@ class DashboardController extends Controller
             : 0;
 
         return view('dashboard', [
-            'totalActives'        => $totalActives,
-            'totalArchives'       => $totalArchives,
-            'totalEntretiens'     => $totalEntretiens,
-            'parStatut'           => $parStatut,
-            'parPriorite'         => $parPriorite,
-            'statuts'             => Candidature::statuts(),
-            'priorites'           => Candidature::priorites(),
-            'entretiensAVenir'    => $entretiensAVenir,
-            'recentCandidatures'  => $recentCandidatures,
-            'tauxReponse'         => $tauxReponse,
+            'totalActives'                     => $totalActives,
+            'totalArchives'                    => $totalArchives,
+            'entretiensAVenirCount'            => $entretiensAVenirCount,
+            'entretiensCetteSemaine'           => $entretiensCetteSemaine,
+            'entretiensAujourdhui'             => $entretiensAujourdhui,
+            'entretiensSansPreparation'        => $entretiensSansPreparation,
+            'entretiensSansPreparationCount'   => $entretiensSansPreparationCount,
+            'entretiensResultatEnAttente'      => $entretiensResultatEnAttente,
+            'entretiensResultatEnAttenteCount' => $entretiensResultatEnAttenteCount,
+            'candidaturesARelancer'            => $candidaturesARelancer,
+            'prochainEntretien'                => $prochainEntretien,
+            'parStatut'                        => $parStatut,
+            'parPriorite'                      => $parPriorite,
+            'statuts'                          => Candidature::statuts(),
+            'priorites'                        => Candidature::priorites(),
+            'resultats'                        => Entretien::resultats(),
+            'entretiensAVenir'                 => $entretiensAVenir,
+            'recentCandidatures'               => $recentCandidatures,
+            'tauxReponse'                      => $tauxReponse,
         ]);
     }
 }

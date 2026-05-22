@@ -17,7 +17,7 @@ class EntretienFactory extends Factory
             'type'               => fake()->randomElement(['telephone', 'visio', 'presentiel', 'technique', 'rh']),
             'date_heure'         => fake()->dateTimeBetween('+1 day', '+30 days'),
             'notes_preparation'  => fake()->optional()->paragraph(),
-            'resultat'           => fake()->randomElement(['en_attente', 'positif', 'negatif']),
+            'resultat'           => fake()->randomElement(['en_attente', 'positif', 'negatif', 'annule']),
         ];
     }
 }
