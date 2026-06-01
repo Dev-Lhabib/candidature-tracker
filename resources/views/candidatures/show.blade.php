@@ -18,7 +18,7 @@
             fetch(this.archiveUrl, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'X-Requested-With': 'XMLHttpRequest' } }).then(() => window.location.href = @js(route('candidatures.index')));
         },
         confirmDelete() {
-            fetch(this.deleteUrl, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'X-Requested-With': 'XMLHttpRequest' } }).then(() => window.location.reload());
+            fetch(this.deleteUrl, { method: 'DELETE', redirect: 'manual', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'X-Requested-With': 'XMLHttpRequest' } }).then(() => window.location.reload());
         }
     }" class="max-w-4xl mx-auto space-y-6">
 

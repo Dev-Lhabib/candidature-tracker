@@ -104,7 +104,7 @@ class CandidatureController extends Controller
     }
 
     public function destroy(Candidature $candidature): RedirectResponse
-    {
+    {   
         $this->authorize('delete', $candidature);
         $candidature->delete();
 
