@@ -8,7 +8,7 @@ use App\Models\User;
 class CandidaturePolicy
 {
     /**
-     * Determine whether the user can view the candidature.
+     * Determine whether the user can view the candid   ature.
      */
     public function view(User $user, Candidature $candidature): bool
     {

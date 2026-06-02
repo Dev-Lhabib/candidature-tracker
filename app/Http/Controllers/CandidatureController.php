@@ -130,10 +130,6 @@ class CandidatureController extends Controller
         $this->authorize('restore', $candidature);
         $candidature->restore();
 
-        if (request()->expectsJson()) {
-            return response()->json(['success' => true]);
-        }
-
         return redirect()->route('candidatures.index')
             ->with('success', 'Candidature restaurée.');
     }
@@ -149,10 +145,6 @@ class CandidatureController extends Controller
         }
 
         $candidature->forceDelete();
-
-        if (request()->expectsJson()) {
-            return response()->json(['success' => true]);
-        }
 
         return redirect()->route('candidatures.archives')
             ->with('success', 'Candidature supprimée définitivement.');
