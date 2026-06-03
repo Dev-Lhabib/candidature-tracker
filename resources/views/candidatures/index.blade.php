@@ -96,6 +96,9 @@
                                     <a href="{{ route('candidatures.show', $c) }}">{{ $c->entreprise }}</a>
                                 </h3>
                                 <p class="text-slate-600 font-medium">{{ $c->poste }}</p>
+                                @if($isAdminView ?? false)
+                                    <p class="text-xs text-slate-400 mt-0.5">{{ $c->user->name }}</p>
+                                @endif
                             </div>
                             <div class="flex shrink-0 flex-col items-end gap-1">
                                 @if($c->fichiers->count() > 0)

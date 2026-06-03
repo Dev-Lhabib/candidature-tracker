@@ -30,9 +30,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    /**
-     * Get the candidatures for the user.
-     */
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
+
     public function candidatures(): HasMany
     {
         return $this->hasMany(Candidature::class);
