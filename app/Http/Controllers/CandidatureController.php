@@ -19,11 +19,7 @@ class CandidatureController extends Controller
         $filters = $request->validated();
         $user = auth()->user();
 
-        if ($user->isAdmin()) {
-            $query = Candidature::with(['user', 'entretiens', 'fichiers']);
-        } else {
-            $query = $user->candidatures()->with(['entretiens', 'fichiers']);
-        }
+        $query = $user->candidatures()->with(['entretiens', 'fichiers']);
 
         if (!empty($filters['statut'])) {
             $query->where('statut', $filters['statut']);
@@ -50,7 +46,6 @@ class CandidatureController extends Controller
             'candidatures' => $candidatures,
             'statuts'      => Candidature::statuts(),
             'priorites'    => Candidature::priorites(),
-            'isAdminView'  => $user->isAdmin(),
         ]);
     }
 
@@ -135,27 +130,20 @@ class CandidatureController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isAdmin()) {
-            $archives = Candidature::onlyTrashed()->with('user')->latest('deleted_at')->get();
-        } else {
-            $archives = Candidature::onlyTrashed()
-                ->where('user_id', $user->id)
-                ->latest('deleted_at')
-                ->get();
-        }
+        $archives = Candidature::onlyTrashed()
+            ->where('user_id', $user->id)
+            ->latest('deleted_at')
+            ->get();
 
         return view('candidatures.archives', [
             'archives'    => $archives,
-            'isAdminView' => $user->isAdmin(),
         ]);
     }
 
     public function restore(int $id)
     {
         $user = auth()->user();
-        $candidature = $user->isAdmin()
-            ? Candidature::withTrashed()->findOrFail($id)
-            : $user->candidatures()->withTrashed()->findOrFail($id);
+        $candidature = $user->candidatures()->withTrashed()->findOrFail($id);
         $this->authorize('restore', $candidature);
         $candidature->restore();
 
@@ -166,9 +154,7 @@ class CandidatureController extends Controller
     public function forceDelete(int $id)
     {
         $user = auth()->user();
-        $candidature = $user->isAdmin()
-            ? Candidature::withTrashed()->findOrFail($id)
-            : $user->candidatures()->withTrashed()->findOrFail($id);
+        $candidature = $user->candidatures()->withTrashed()->findOrFail($id);
         $this->authorize('delete', $candidature);
 
         $candidature->load('fichiers');
