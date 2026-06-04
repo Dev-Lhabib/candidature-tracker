@@ -63,4 +63,10 @@ class Candidature extends Model
     {
         return $this->hasMany(CandidatureFichier::class)->orderBy('created_at');
     }
+
+    public function scopeOrderByPriorite(Builder $query, string $direction = 'asc'): Builder
+    {
+        $dir = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+        return $query->orderByRaw("FIELD(priorite, 'haute', 'moyenne', 'basse') $dir");
+    }
 }
