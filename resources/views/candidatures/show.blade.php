@@ -14,9 +14,7 @@
         entretienLabel: '',
         openArchive(url) { this.showArchive = true; this.archiveUrl = url; },
         openDelete(url, label) { this.showDelete = true; this.deleteUrl = url; this.entretienLabel = label; },
-        confirmArchive() {
-            fetch(this.archiveUrl, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'X-Requested-With': 'XMLHttpRequest' } }).then(() => window.location.href = @js(route('candidatures.index')));
-        },
+        confirmArchive() {this.$refs.archiveForm.submit(); },
         confirmDelete() {
             fetch(this.deleteUrl, { method: 'DELETE', redirect: 'manual', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'X-Requested-With': 'XMLHttpRequest' } }).then(() => window.location.reload());
         }
@@ -33,6 +31,12 @@
                         <p class="font-semibold">{{ $candidature->entreprise }}</p>
                         <p class="text-sm text-slate-500">{{ $candidature->poste }}</p>
                     </div>
+
+                    <form method="POST" :action="archiveUrl" x-ref="archiveForm" class="hidden">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                    
                     <div class="flex gap-3 justify-end">
                         <button type="button" @click="showArchive = false" class="btn-secondary">Annuler</button>
                         <button type="button" @click="confirmArchive()" class="btn-success">Archiver</button>

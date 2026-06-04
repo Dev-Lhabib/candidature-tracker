@@ -32,8 +32,25 @@ class CandidatureController extends Controller
             $query->where('priorite', $filters['priorite']);
         }
 
-        $candidatures = $query->latest()->get();
+        $sort = $filters['sort'] ?? 'date_desc';
 
+        $sortOrders = [
+            'priorite_asc'  => ["FIELD(priorite, 'haute', 'moyenne', 'basse')", 'asc'],
+            'priorite_desc' => ["FIELD(priorite, 'haute', 'moyenne', 'basse')", 'desc'],
+            'date_asc'      => ['created_at', 'asc'],
+            'date_desc'     => ['created_at', 'desc'],
+        ];
+
+        [$sortColumn, $sortDir] = $sortOrders[$sort];
+
+        if (in_array($sort, ['priorite_asc', 'priorite_desc'])) {
+            $query->orderByRaw("$sortColumn $sortDir");
+        } else {
+            $query->orderBy($sortColumn, $sortDir);
+        }
+
+        $candidatures = $query->get();
+        
         return view('candidatures.index', [
             'candidatures' => $candidatures,
             'statuts'      => Candidature::statuts(),

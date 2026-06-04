@@ -18,13 +18,7 @@
             this.archiveUrl = url;
         },
         confirmArchive() {
-            fetch(this.archiveUrl, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            }).then(() => window.location.reload());
+            this.$refs.archiveForm.submit();
         }
     }" class="max-w-6xl mx-auto space-y-6">
 
@@ -50,6 +44,10 @@
                     </div>
                 </div>
             </div>
+            <form method="POST" :action="archiveUrl" x-ref="archiveForm" class="hidden">
+                @csrf
+                @method('DELETE')
+            </form>
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -60,7 +58,7 @@
         </div>
 
         <form method="GET" action="{{ route('candidatures.index') }}" class="card card-body">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
                 <div>
                     <label for="statut" class="form-label">Statut</label>
                     <select name="statut" id="statut" class="form-select">
@@ -77,6 +75,15 @@
                         @foreach($priorites as $key => $label)
                             <option value="{{ $key }}" {{ request('priorite') == $key ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="sort" class="from-label">Trier par</label>
+                    <select name="sort" id="sort" class="form-select">
+                        <option value="date_desc" {{ request('sort', 'date_desc') == 'date_desc'  ? 'selected' : '' }}>Date (récent → ancien)</option>
+                        <option value="date_asc" {{ request('sort') == 'date_asc' ? 'selected' : ''}}>Date (ancien→ récent)</option>
+                        <option value="priorite_asc" {{ request('sort') == 'priorite_asc' ? 'selected' : ''}}>Priorité (haute → basse)</option>
+                        <option value="priorite_desc" {{ request('sort') == 'priorite_desc' ? 'selected' : ''}}>Priorité (basse → haute)</option>
                     </select>
                 </div>
                 <div class="flex gap-2">

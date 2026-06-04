@@ -16,6 +16,7 @@ class FilterCandidatureRequest extends FormRequest
         return [
             'statut'   => 'nullable|in:en_attente,relance,entretien,offre,refuse,abandonne',
             'priorite' => 'nullable|in:haute,moyenne,basse',
+            'sort'     => 'nullable|in:priorite_asc,priorite_desc,date_asc,date_desc',
         ];
     }
 }

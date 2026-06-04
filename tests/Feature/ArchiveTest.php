@@ -44,4 +44,19 @@ class ArchiveTest extends TestCase
              ->assertSee($archived->entreprise)
              ->assertDontSee($active->entreprise);
     }
+
+    public function test_archive_count_reflects_archived_candidatures(): void 
+    {
+        $user = User::factory()->create();
+        $candidatures = Candidature::factory()->for($user)->count(4)->create();
+
+        foreach ($candidatures as $c) {
+            $this->actingAs($user)->delete(route('candidatures.destroy', $c));
+        }
+
+        $this->assertEquals(4, Candidature::onlyTrashed()->where('user_id', $user->id)->count());
+
+        $response = $this->actingAs($user)->get(route('dashboard'));
+        $response->assertViewHas('totalArchives', 4);
+    }
 }
